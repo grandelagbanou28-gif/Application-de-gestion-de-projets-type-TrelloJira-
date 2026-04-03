@@ -41,3 +41,4 @@ Day 40: fix: correct import order consistency - 2026-03-30 14:15:56
 Day 41: style: format AttachmentList component - 2026-03-31 14:15:56
 Day 42: fix: resolve linting warnings - 2026-04-01 14:15:56
 Day 43: chore: add jsconfig for paths - 2026-04-02 14:15:56
+Day 44: fix: correct state access in selectors - 2026-04-03 14:15:56
