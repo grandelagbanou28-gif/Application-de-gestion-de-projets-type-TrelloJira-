@@ -108,3 +108,4 @@ Day 107: chore: standardize error boundaries - 2026-06-05 14:15:56
 Day 108: fix: correct KanbanBoard column order - 2026-06-06 14:15:56
 Day 109: style: format SprintPlanning dates - 2026-06-07 14:15:56
 Day 110: fix: resolve CalendarPage event fetch - 2026-06-08 14:15:56
+Day 111: chore: add loading states - 2026-06-09 14:15:56
