@@ -1,1 +1,166 @@
-import { useState, useMemo } from 'react' import { useSelector } from 'react-redux' import { useNavigate, useSearchParams } from 'react-router-dom' import { Search, FolderKanban, ListTodo, Users, FileText, X } from 'lucide-react' import { useTranslation } from '../i18n'  const highlightMatch = (text, term) => {   if (!term || !text) return text   const lower = text.toLowerCase()   const idx = lower.indexOf(term.toLowerCase())   if (idx === -1) return text   return (     <>       {text.slice(0, idx)}       <span className="bg-primary-500/20 text-primary-700 dark:text-primary-300 rounded px-0.5 font-medium">{text.slice(idx, idx + term.length)}</span>       {text.slice(idx + term.length)}     </>   ) }  const tabs = [   { key: 'all', icon: Search },   { key: 'projects', icon: FolderKanban },   { key: 'tasks', icon: ListTodo },   { key: 'members', icon: Users }, ]  const sectionConfig = {   projects: { icon: FolderKanban, color: 'text-primary-600 dark:text-primary-400', bg: 'bg-primary-500/10' },   tasks: { icon: FileText, color: 'text-amber-600 dark:text-amber-400', bg: 'bg-amber-500/10' },   members: { icon: Users, color: 'text-emerald-600 dark:text-emerald-400', bg: 'bg-emerald-500/10' }, }  const SearchPage = () => {   const { t } = useTranslation()   const navigate = useNavigate()   const [searchParams, setSearchParams] = useSearchParams()   const { currentWorkspace } = useSelector((state) => state.workspace)    const [query, setQuery] = useState(() => searchParams.get('q') || '')   const [activeTab, setActiveTab] = useState('all')    const handleQueryChange = (value) => {     setQuery(value)     if (value) {       setSearchParams({ q: value }, { replace: true })     } else {       setSearchParams({}, { replace: true })     }   }    const clearSearch = () => handleQueryChange('')    const filtered = useMemo(() => {     if (!query.trim()) {       return { projects: [], tasks: [], members: [], total: 0, matched: { projects: 0, tasks: 0, members: 0 } }     }      const q = query.toLowerCase().trim()     const projects = currentWorkspace?.projects || []     const members = currentWorkspace?.members || []      const allTasks = []     projects.forEach((p) => {       ;(p.tasks || []).forEach((t) => {         allTasks.push({ ...t, projectId: p.id, projectName: p.name })       })     })      const matchedProjects = projects.filter((p) =>       p.name?.toLowerCase().includes(q) || p.description?.toLowerCase().includes(q)     )     const matchedTasks = allTasks.filter((t) =>       t.title?.toLowerCase().includes(q) || t.description?.toLowerCase().includes(q)     )     const matchedMembers = members.filter((m) =>       m.name?.toLowerCase().includes(q) || m.email?.toLowerCase().includes(q)     )      let shown = { projects: [], tasks: [], members: [] }     if (activeTab === 'all') {       shown = { projects: matchedProjects, tasks: matchedTasks, members: matchedMembers }     } else if (activeTab === 'projects') {       shown = { projects: matchedProjects, tasks: [], members: [] }     } else if (activeTab === 'tasks') {       shown = { projects: [], tasks: matchedTasks, members: [] }     } else if (activeTab === 'members') {       shown = { projects: [], tasks: [], members: matchedMembers }     }      return {       ...shown,       total: shown.projects.length + shown.tasks.length + shown.members.length,       matched: {         projects: matchedProjects.length,         tasks: matchedTasks.length,         members: matchedMembers.length,       },     }   }, [query, activeTab, currentWorkspace])    const hasQuery = query.trim().length > 0    return (     <div className="max-w-4xl mx-auto space-y-8">       <div>         <h1 className="text-2xl font-bold tracking-tight text-surface-900 dark:text-white">{t('search.title')}</h1>       </div>        <div className="relative">         <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-surface-400 dark:text-surface-500" />         <input           type="text"           value={query}           onChange={(e) => handleQueryChange(e.target.value)}           placeholder={t('search.placeholder')}           className="w-full pl-12 pr-12 py-3.5 bg-white dark:bg-surface-900 border border-surface-200 dark:border-surface-800 rounded-2xl text-sm text-surface-900 dark:text-surface-100 placeholder-surface-400 dark:placeholder-surface-500 focus:outline-none focus:ring-2 focus:ring-primary-500/30 focus:border-primary-500/50 transition-all shadow-sm"           autoFocus         />         {query && (           <button             onClick={clearSearch}             className="absolute right-4 top-1/2 -translate-y-1/2 p-1 rounded-lg text-surface-400 hover:text-surface-600 dark:hover:text-surface-200 hover:bg-surface-100 dark:hover:bg-surface-800 transition-all"           >             <X size={16} />           </button>         )}       </div>        <div className="flex gap-1 bg-surface-100 dark:bg-surface-800 p-1 rounded-xl w-fit">         {tabs.map((tab) => {           const Icon = tab.icon           const isActive = activeTab === tab.key           return (             <button               key={tab.key}               onClick={() => setActiveTab(tab.key)}               className={`flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg transition-all ${                 isActive                   ? 'bg-white dark:bg-surface-900 text-surface-900 dark:text-surface-100 shadow-sm'                   : 'text-surface-500 dark:text-surface-400 hover:text-surface-700 dark:hover:text-surface-200'               }`}             >               <Icon size={16} strokeWidth={isActive ? 2.5 : 1.5} />               {t(`search.${tab.key}`)}               {hasQuery && filtered.matched[tab.key] > 0 && (                 <span className={`text-xs px-1.5 py-0.5 rounded-md ${                   isActive                     ? 'bg-primary-500/10 text-primary-600 dark:text-primary-400'                     : 'bg-surface-200 dark:bg-surface-700 text-surface-500 dark:text-surface-400'                 }`}>                   {filtered.matched[tab.key]}                 </span>               )}             </button>           )         })}       </div>        {hasQuery && filtered.total > 0 && (         <p className="text-sm text-surface-500 dark:text-surface-400">           {filtered.total} {t('search.results')}         </p>       )}        {!hasQuery && (         <div className="text-center py-20">           <div className="w-20 h-20 mx-auto mb-6 bg-surface-100 dark:bg-surface-800 rounded-2xl flex items-center justify-center">             <Search size={40} className="text-surface-400 dark:text-surface-500" />           </div>           <h3 className="text-lg font-semibold text-surface-900 dark:text-surface-100 mb-1">{t('search.title')}</h3>           <p className="text-surface-500 dark:text-surface-400 text-sm">{t('search.placeholder')}</p>         </div>       )}        {hasQuery && filtered.total === 0 && (         <div className="text-center py-20">           <div className="w-20 h-20 mx-auto mb-6 bg-surface-100 dark:bg-surface-800 rounded-2xl flex items-center justify-center">             <Search size={40} className="text-surface-400 dark:text-surface-500" />           </div>           <h3 className="text-lg font-semibold text-surface-900 dark:text-surface-100 mb-1">{t('search.noResults')}</h3>           <p className="text-surface-500 dark:text-surface-400 text-sm">{t('search.noResultsDesc')}</p>         </div>       )}        {hasQuery && (         <div className="space-y-8">           {(activeTab === 'all' || activeTab === 'projects') && filtered.projects.length > 0 && (             <SectionBlock               title={t('search.projects')}               count={filtered.projects.length}               config={sectionConfig.projects}             >               {filtered.projects.map((project) => (                 <ResultItem                   key={project.id}                   onClick={() => navigate(`/projectsDetail?id=${project.id}&tab=tasks`)}                   icon={FolderKanban}                   iconBg="bg-primary-500/10"                   iconColor="text-primary-600 dark:text-primary-400"                   primary={highlightMatch(project.name, query)}                   secondary={project.description ? highlightMatch(project.description, query) : t('common.noDescription')}                 />               ))}             </SectionBlock>           )}            {(activeTab === 'all' || activeTab === 'tasks') && filtered.tasks.length > 0 && (             <SectionBlock               title={t('search.tasks')}               count={filtered.tasks.length}               config={sectionConfig.tasks}             >               {filtered.tasks.map((task) => (                 <ResultItem                   key={task.id}                   onClick={() => navigate(`/taskDetails?projectId=${task.projectId}&taskId=${task.id}`)}                   icon={FileText}                   iconBg="bg-amber-500/10"                   iconColor="text-amber-600 dark:text-amber-400"                   primary={highlightMatch(task.title, query)}                   secondary={                     <>                       <span className="text-surface-400 dark:text-surface-500 text-xs mr-2">{task.projectName}</span>                       {task.description ? highlightMatch(task.description, query) : t('common.noDescription')}                     </>                   }                 />               ))}             </SectionBlock>           )}            {(activeTab === 'all' || activeTab === 'members') && filtered.members.length > 0 && (             <SectionBlock               title={t('search.members')}               count={filtered.members.length}               config={sectionConfig.members}             >               {filtered.members.map((member) => (                 <ResultItem                   key={member.id}                   onClick={() => navigate('/team')}                   icon={Users}                   iconBg="bg-emerald-500/10"                   iconColor="text-emerald-600 dark:text-emerald-400"                   primary={highlightMatch(member.name, query)}                   secondary={member.email ? highlightMatch(member.email, query) : null}                   avatar={member.name?.[0]?.toUpperCase() || member.email?.[0]?.toUpperCase() || '?'}                 />               ))}             </SectionBlock>           )}         </div>       )}     </div>   ) }  const SectionBlock = ({ title, count, config, children }) => {   const Icon = config.icon   return (     <div>       <div className="flex items-center gap-2 mb-4">         <div className={`p-2 rounded-lg ${config.bg}`}>           <Icon size={16} className={config.color} />         </div>         <h2 className="text-base font-semibold text-surface-900 dark:text-surface-100">{title}</h2>         <span className="text-xs text-surface-400 dark:text-surface-500 bg-surface-100 dark:bg-surface-800 px-2 py-0.5 rounded-md">{count}</span>       </div>       <div className="bg-white dark:bg-surface-900 rounded-2xl border border-surface-200 dark:border-surface-800 overflow-hidden divide-y divide-surface-100 dark:divide-surface-800">         {children}       </div>     </div>   ) }  const ResultItem = ({ onClick, icon: Icon, iconBg, iconColor, primary, secondary, avatar }) => (   <button     onClick={onClick}     className="w-full flex items-center gap-4 px-5 py-4 text-left hover:bg-surface-50 dark:hover:bg-surface-850 transition-colors active:scale-[0.995]"   >     {avatar ? (       <div className="size-10 rounded-xl bg-gradient-to-br from-primary-400 to-primary-600 flex items-center justify-center text-white text-sm font-bold shrink-0">         {avatar}       </div>     ) : (       <div className={`size-10 rounded-xl ${iconBg} flex items-center justify-center shrink-0`}>         <Icon size={18} className={iconColor} />       </div>     )}     <div className="min-w-0 flex-1">       <p className="text-sm font-medium text-surface-900 dark:text-surface-100 truncate">{primary}</p>       {secondary && (         <p className="text-xs text-surface-500 dark:text-surface-400 mt-0.5 truncate">{secondary}</p>       )}     </div>   </button> )  export default SearchPage
+import { useState, useMemo } from 'react';
+import { useSelector } from 'react-redux';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import { Search, FolderKanban, ListTodo, Users, FileText, X } from 'lucide-react';
+import { useTranslation } from '../i18n';
+const highlightMatch = (text, term) => {
+  if (!term || !text) return text;
+  const lower = text.toLowerCase();
+  const idx = lower.indexOf(term.toLowerCase());
+  if (idx === -1) return text;
+  return <>       {text.slice(0, idx)}       <span className="bg-primary-500/20 text-primary-700 dark:text-primary-300 rounded px-0.5 font-medium">{text.slice(idx, idx + term.length)}</span>       {text.slice(idx + term.length)}     </>;
+};
+const tabs = [{
+  key: 'all',
+  icon: Search
+}, {
+  key: 'projects',
+  icon: FolderKanban
+}, {
+  key: 'tasks',
+  icon: ListTodo
+}, {
+  key: 'members',
+  icon: Users
+}];
+const sectionConfig = {
+  projects: {
+    icon: FolderKanban,
+    color: 'text-primary-600 dark:text-primary-400',
+    bg: 'bg-primary-500/10'
+  },
+  tasks: {
+    icon: FileText,
+    color: 'text-amber-600 dark:text-amber-400',
+    bg: 'bg-amber-500/10'
+  },
+  members: {
+    icon: Users,
+    color: 'text-emerald-600 dark:text-emerald-400',
+    bg: 'bg-emerald-500/10'
+  }
+};
+const SearchPage = () => {
+  const {
+    t
+  } = useTranslation();
+  const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const {
+    currentWorkspace
+  } = useSelector(state => state.workspace);
+  const [query, setQuery] = useState(() => searchParams.get('q') || '');
+  const [activeTab, setActiveTab] = useState('all');
+  const handleQueryChange = value => {
+    setQuery(value);
+    if (value) {
+      setSearchParams({
+        q: value
+      }, {
+        replace: true
+      });
+    } else {
+      setSearchParams({}, {
+        replace: true
+      });
+    }
+  };
+  const clearSearch = () => handleQueryChange('');
+  const filtered = useMemo(() => {
+    if (!query.trim()) {
+      return {
+        projects: [],
+        tasks: [],
+        members: [],
+        total: 0,
+        matched: {
+          projects: 0,
+          tasks: 0,
+          members: 0
+        }
+      };
+    }
+    ;
+    const q = query.toLowerCase().trim();
+    const projects = currentWorkspace?.projects || [];
+    const members = currentWorkspace?.members || [];
+    const allTasks = [];
+    projects.forEach(p => {
+      ;
+      (p.tasks || []).forEach(t => {
+        allTasks.push({
+          ...t,
+          projectId: p.id,
+          projectName: p.name
+        });
+      });
+    });
+    const matchedProjects = projects.filter(p => p.name?.toLowerCase().includes(q) || p.description?.toLowerCase().includes(q));
+    const matchedTasks = allTasks.filter(t => t.title?.toLowerCase().includes(q) || t.description?.toLowerCase().includes(q));
+    const matchedMembers = members.filter(m => m.name?.toLowerCase().includes(q) || m.email?.toLowerCase().includes(q));
+    let shown = {
+      projects: [],
+      tasks: [],
+      members: []
+    };
+    if (activeTab === 'all') {
+      shown = {
+        projects: matchedProjects,
+        tasks: matchedTasks,
+        members: matchedMembers
+      };
+    } else if (activeTab === 'projects') {
+      shown = {
+        projects: matchedProjects,
+        tasks: [],
+        members: []
+      };
+    } else if (activeTab === 'tasks') {
+      shown = {
+        projects: [],
+        tasks: matchedTasks,
+        members: []
+      };
+    } else if (activeTab === 'members') {
+      shown = {
+        projects: [],
+        tasks: [],
+        members: matchedMembers
+      };
+    }
+    return {
+      ...shown,
+      total: shown.projects.length + shown.tasks.length + shown.members.length,
+      matched: {
+        projects: matchedProjects.length,
+        tasks: matchedTasks.length,
+        members: matchedMembers.length
+      }
+    };
+  }, [query, activeTab, currentWorkspace]);
+  const hasQuery = query.trim().length > 0;
+  return <div className="max-w-4xl mx-auto space-y-8">       <div>         <h1 className="text-2xl font-bold tracking-tight text-surface-900 dark:text-white">{t('search.title')}</h1>       </div>        <div className="relative">         <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-surface-400 dark:text-surface-500" />         <input type="text" value={query} onChange={e => handleQueryChange(e.target.value)} placeholder={t('search.placeholder')} className="w-full pl-12 pr-12 py-3.5 bg-white dark:bg-surface-900 border border-surface-200 dark:border-surface-800 rounded-2xl text-sm text-surface-900 dark:text-surface-100 placeholder-surface-400 dark:placeholder-surface-500 focus:outline-none focus:ring-2 focus:ring-primary-500/30 focus:border-primary-500/50 transition-all shadow-sm" autoFocus />         {query && <button onClick={clearSearch} className="absolute right-4 top-1/2 -translate-y-1/2 p-1 rounded-lg text-surface-400 hover:text-surface-600 dark:hover:text-surface-200 hover:bg-surface-100 dark:hover:bg-surface-800 transition-all">             <X size={16} />           </button>}       </div>        <div className="flex gap-1 bg-surface-100 dark:bg-surface-800 p-1 rounded-xl w-fit">         {tabs.map(tab => {
+        const Icon = tab.icon;
+        const isActive = activeTab === tab.key;
+        return <button key={tab.key} onClick={() => setActiveTab(tab.key)} className={`flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg transition-all ${isActive ? 'bg-white dark:bg-surface-900 text-surface-900 dark:text-surface-100 shadow-sm' : 'text-surface-500 dark:text-surface-400 hover:text-surface-700 dark:hover:text-surface-200'}`}>               <Icon size={16} strokeWidth={isActive ? 2.5 : 1.5} />               {t(`search.${tab.key}`)}               {hasQuery && filtered.matched[tab.key] > 0 && <span className={`text-xs px-1.5 py-0.5 rounded-md ${isActive ? 'bg-primary-500/10 text-primary-600 dark:text-primary-400' : 'bg-surface-200 dark:bg-surface-700 text-surface-500 dark:text-surface-400'}`}>                   {filtered.matched[tab.key]}                 </span>}             </button>;
+      })}       </div>        {hasQuery && filtered.total > 0 && <p className="text-sm text-surface-500 dark:text-surface-400">           {filtered.total} {t('search.results')}         </p>}        {!hasQuery && <div className="text-center py-20">           <div className="w-20 h-20 mx-auto mb-6 bg-surface-100 dark:bg-surface-800 rounded-2xl flex items-center justify-center">             <Search size={40} className="text-surface-400 dark:text-surface-500" />           </div>           <h3 className="text-lg font-semibold text-surface-900 dark:text-surface-100 mb-1">{t('search.title')}</h3>           <p className="text-surface-500 dark:text-surface-400 text-sm">{t('search.placeholder')}</p>         </div>}        {hasQuery && filtered.total === 0 && <div className="text-center py-20">           <div className="w-20 h-20 mx-auto mb-6 bg-surface-100 dark:bg-surface-800 rounded-2xl flex items-center justify-center">             <Search size={40} className="text-surface-400 dark:text-surface-500" />           </div>           <h3 className="text-lg font-semibold text-surface-900 dark:text-surface-100 mb-1">{t('search.noResults')}</h3>           <p className="text-surface-500 dark:text-surface-400 text-sm">{t('search.noResultsDesc')}</p>         </div>}        {hasQuery && <div className="space-y-8">           {(activeTab === 'all' || activeTab === 'projects') && filtered.projects.length > 0 && <SectionBlock title={t('search.projects')} count={filtered.projects.length} config={sectionConfig.projects}>               {filtered.projects.map(project => <ResultItem key={project.id} onClick={() => navigate(`/projectsDetail?id=${project.id}&tab=tasks`)} icon={FolderKanban} iconBg="bg-primary-500/10" iconColor="text-primary-600 dark:text-primary-400" primary={highlightMatch(project.name, query)} secondary={project.description ? highlightMatch(project.description, query) : t('common.noDescription')} />)}             </SectionBlock>}            {(activeTab === 'all' || activeTab === 'tasks') && filtered.tasks.length > 0 && <SectionBlock title={t('search.tasks')} count={filtered.tasks.length} config={sectionConfig.tasks}>               {filtered.tasks.map(task => <ResultItem key={task.id} onClick={() => navigate(`/taskDetails?projectId=${task.projectId}&taskId=${task.id}`)} icon={FileText} iconBg="bg-amber-500/10" iconColor="text-amber-600 dark:text-amber-400" primary={highlightMatch(task.title, query)} secondary={<>                       <span className="text-surface-400 dark:text-surface-500 text-xs mr-2">{task.projectName}</span>                       {task.description ? highlightMatch(task.description, query) : t('common.noDescription')}                     </>} />)}             </SectionBlock>}            {(activeTab === 'all' || activeTab === 'members') && filtered.members.length > 0 && <SectionBlock title={t('search.members')} count={filtered.members.length} config={sectionConfig.members}>               {filtered.members.map(member => <ResultItem key={member.id} onClick={() => navigate('/team')} icon={Users} iconBg="bg-emerald-500/10" iconColor="text-emerald-600 dark:text-emerald-400" primary={highlightMatch(member.name, query)} secondary={member.email ? highlightMatch(member.email, query) : null} avatar={member.name?.[0]?.toUpperCase() || member.email?.[0]?.toUpperCase() || '?'} />)}             </SectionBlock>}         </div>}     </div>;
+};
+const SectionBlock = ({
+  title,
+  count,
+  config,
+  children
+}) => {
+  const Icon = config.icon;
+  return <div>       <div className="flex items-center gap-2 mb-4">         <div className={`p-2 rounded-lg ${config.bg}`}>           <Icon size={16} className={config.color} />         </div>         <h2 className="text-base font-semibold text-surface-900 dark:text-surface-100">{title}</h2>         <span className="text-xs text-surface-400 dark:text-surface-500 bg-surface-100 dark:bg-surface-800 px-2 py-0.5 rounded-md">{count}</span>       </div>       <div className="bg-white dark:bg-surface-900 rounded-2xl border border-surface-200 dark:border-surface-800 overflow-hidden divide-y divide-surface-100 dark:divide-surface-800">         {children}       </div>     </div>;
+};
+const ResultItem = ({
+  onClick,
+  icon: Icon,
+  iconBg,
+  iconColor,
+  primary,
+  secondary,
+  avatar
+}) => <button onClick={onClick} className="w-full flex items-center gap-4 px-5 py-4 text-left hover:bg-surface-50 dark:hover:bg-surface-850 transition-colors active:scale-[0.995]">     {avatar ? <div className="size-10 rounded-xl bg-gradient-to-br from-primary-400 to-primary-600 flex items-center justify-center text-white text-sm font-bold shrink-0">         {avatar}       </div> : <div className={`size-10 rounded-xl ${iconBg} flex items-center justify-center shrink-0`}>         <Icon size={18} className={iconColor} />       </div>}     <div className="min-w-0 flex-1">       <p className="text-sm font-medium text-surface-900 dark:text-surface-100 truncate">{primary}</p>       {secondary && <p className="text-xs text-surface-500 dark:text-surface-400 mt-0.5 truncate">{secondary}</p>}     </div>   </button>;
+export default SearchPage;

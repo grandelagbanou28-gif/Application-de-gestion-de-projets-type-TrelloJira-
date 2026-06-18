@@ -1,1 +1,157 @@
-import { useMemo, useRef } from "react" import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line, CartesianGrid, Tooltip, Legend } from "recharts" import { CheckCircle, Clock, AlertTriangle, Users, ArrowRight } from "lucide-react" import { useTranslation } from "../i18n"  const COLORS = ["#6366f1", "#10b981", "#f59e0b", "#ef4444", "#8b5cf6"]  const ProjectAnalytics = ({ project, tasks }) => {   const { t } = useTranslation()   const { stats, statusData, typeData, priorityData, burndownData } = useMemo(() => {     const now = new Date()     const total = tasks.length      const stats = { total, completed: 0, inProgress: 0, todo: 0, overdue: 0 }     const statusMap = { TODO: 0, IN_PROGRESS: 0, DONE: 0 }     const typeMap = { TASK: 0, BUG: 0, FEATURE: 0, IMPROVEMENT: 0, OTHER: 0 }     const priorityMap = { LOW: 0, MEDIUM: 0, HIGH: 0 }      tasks.forEach((t) => {       if (t.status === "DONE") stats.completed++       if (t.status === "IN_PROGRESS") stats.inProgress++       if (t.status === "TODO") stats.todo++       if (new Date(t.due_date) < now && t.status !== "DONE") stats.overdue++       if (statusMap[t.status] !== undefined) statusMap[t.status]++       if (typeMap[t.type] !== undefined) typeMap[t.type]++       if (priorityMap[t.priority] !== undefined) priorityMap[t.priority]++     })      const totalTasks = total     const completedTasks = stats.completed     const remainingTasks = totalTasks - completedTasks      const days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]     const totalPoints = totalTasks || 10     const remaining = remainingTasks     const step = totalPoints / (days.length - 1)     const burndownData = days.map((day, i) => ({       day,       ideal: Math.max(totalPoints - i * step, 0),       actual: i === 0 ? totalPoints : i < days.length - 1 ? Math.max(remaining - (days.length - 2 - i) * step * 0.3, 0) : remaining,     }))      return {       stats,       statusData: Object.entries(statusMap).map(([k, v]) => ({ name: k.replace("_", " "), value: v })),       typeData: Object.entries(typeMap).filter(([_, v]) => v > 0).map(([k, v]) => ({ name: k, value: v })),       priorityData: Object.entries(priorityMap).map(([k, v]) => ({ name: k, value: v, percentage: total > 0 ? Math.round((v / total) * 100) : 0 })),       burndownData,     }   }, [tasks])    const completionRate = stats.total ? Math.round((stats.completed / stats.total) * 100) : 0    const metrics = [     { label: t('dashboard.completed'), value: `${completionRate}%`, color: "text-emerald-600 dark:text-emerald-400", icon: CheckCircle, bg: "bg-emerald-500/10" },     { label: t('projectDetail.inProgress'), value: stats.inProgress, color: "text-primary-600 dark:text-primary-400", icon: Clock, bg: "bg-primary-500/10" },     { label: t('dashboard.overdue'), value: stats.overdue, color: "text-red-600 dark:text-red-400", icon: AlertTriangle, bg: "bg-red-500/10" },     { label: t('projectDetail.teamMembers'), value: project?.members?.length || 0, color: "text-violet-600 dark:text-violet-400", icon: Users, bg: "bg-violet-500/10" },   ]    return (     <div className="space-y-6">       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">         {metrics.map((m, i) => {           const Icon = m.icon           return (             <div key={i} className="bg-white dark:bg-surface-900 rounded-2xl border border-surface-200 dark:border-surface-800 p-5">               <div className="flex items-center justify-between">                 <div>                   <p className="text-xs text-surface-500 dark:text-surface-400 mb-0.5">{m.label}</p>                   <p className={`text-xl font-bold tracking-tight ${m.color}`}>{m.value}</p>                 </div>                 <div className={`p-2.5 rounded-xl ${m.bg}`}>                   <Icon size={18} className={m.color} />                 </div>               </div>             </div>           )         })}       </div>        <div className="bg-white dark:bg-surface-900 rounded-2xl border border-surface-200 dark:border-surface-800 p-6">         <h2 className="text-base font-semibold text-surface-900 dark:text-surface-100 mb-4">Burndown</h2>         <ResponsiveContainer width="100%" height={300}>           <LineChart data={burndownData}>             <CartesianGrid strokeDasharray="3 3" stroke="#e4e4e7" />             <XAxis dataKey="day" tick={{ fill: "#71717a", fontSize: 12 }} axisLine={{ stroke: "#e4e4e7" }} />             <YAxis tick={{ fill: "#71717a", fontSize: 12 }} axisLine={{ stroke: "#e4e4e7" }} />             <Tooltip />             <Legend />             <Line type="monotone" dataKey="ideal" stroke="#a1a1aa" strokeDasharray="5 5" strokeWidth={2} name="Ideal" />             <Line type="monotone" dataKey="actual" stroke="#6366f1" strokeWidth={2} name="Actual" dot={{ r: 4 }} activeDot={{ r: 6 }} />           </LineChart>         </ResponsiveContainer>       </div>        <div className="grid lg:grid-cols-2 gap-6">         <div className="bg-white dark:bg-surface-900 rounded-2xl border border-surface-200 dark:border-surface-800 p-6">           <h2 className="text-base font-semibold text-surface-900 dark:text-surface-100 mb-4">{t('common.status')}</h2>           <ResponsiveContainer width="100%" height={300}>             <BarChart data={statusData}>               <XAxis dataKey="name" tick={{ fill: "#71717a", fontSize: 12 }} axisLine={{ stroke: "#e4e4e7" }} />               <YAxis tick={{ fill: "#71717a", fontSize: 12 }} axisLine={{ stroke: "#e4e4e7" }} />               <Bar dataKey="value" fill="#6366f1" radius={[6, 6, 0, 0]} />             </BarChart>           </ResponsiveContainer>         </div>          <div className="bg-white dark:bg-surface-900 rounded-2xl border border-surface-200 dark:border-surface-800 p-6">           <h2 className="text-base font-semibold text-surface-900 dark:text-surface-100 mb-4">{t('createTask.type')}</h2>           <ResponsiveContainer width="100%" height={300}>             <PieChart>               <Pie data={typeData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={100} label={({ name, value }) => `${name}: ${value}`}>                 {typeData.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}               </Pie>             </PieChart>           </ResponsiveContainer>         </div>       </div>        <div className="bg-white dark:bg-surface-900 rounded-2xl border border-surface-200 dark:border-surface-800 p-6">         <h2 className="text-base font-semibold text-surface-900 dark:text-surface-100 mb-4">{t('common.priority')}</h2>         <div className="space-y-4">           {priorityData.map((p) => {             const barColors = { LOW: "bg-primary-500", MEDIUM: "bg-amber-500", HIGH: "bg-red-500" }             const textColors = { LOW: "text-primary-600 dark:text-primary-400", MEDIUM: "text-amber-600 dark:text-amber-400", HIGH: "text-red-600 dark:text-red-400" }             return (               <div key={p.name} className="space-y-2">                 <div className="flex justify-between items-center">                   <div className="flex items-center gap-2">                     <ArrowRight size={14} className={`${textColors[p.name]}`} />                     <span className="text-sm font-medium text-surface-900 dark:text-surface-100 capitalize">{p.name.toLowerCase()}</span>                   </div>                   <div className="flex items-center gap-2">                     <span className="text-sm text-surface-500 dark:text-surface-400">{p.value} {t('projectDetail.tasks').toLowerCase()}</span>                     <span className="px-2 py-0.5 text-xs font-medium rounded-full bg-surface-100 dark:bg-surface-800 text-surface-600 dark:text-surface-400">{p.percentage}%</span>                   </div>                 </div>                 <div className="w-full h-2 bg-surface-100 dark:bg-surface-800 rounded-full overflow-hidden">                   <div className={`h-full rounded-full ${barColors[p.name]}`} style={{ width: `${p.percentage}%` }} />                 </div>               </div>             )           })}         </div>       </div>     </div>   ) }  export default ProjectAnalytics
+import { useMemo, useRef } from "react";
+import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line, CartesianGrid, Tooltip, Legend } from "recharts";
+import { CheckCircle, Clock, AlertTriangle, Users, ArrowRight } from "lucide-react";
+import { useTranslation } from "../i18n";
+const COLORS = ["#6366f1", "#10b981", "#f59e0b", "#ef4444", "#8b5cf6"];
+const ProjectAnalytics = ({
+  project,
+  tasks
+}) => {
+  const {
+    t
+  } = useTranslation();
+  const {
+    stats,
+    statusData,
+    typeData,
+    priorityData,
+    burndownData
+  } = useMemo(() => {
+    const now = new Date();
+    const total = tasks.length;
+    const stats = {
+      total,
+      completed: 0,
+      inProgress: 0,
+      todo: 0,
+      overdue: 0
+    };
+    const statusMap = {
+      TODO: 0,
+      IN_PROGRESS: 0,
+      DONE: 0
+    };
+    const typeMap = {
+      TASK: 0,
+      BUG: 0,
+      FEATURE: 0,
+      IMPROVEMENT: 0,
+      OTHER: 0
+    };
+    const priorityMap = {
+      LOW: 0,
+      MEDIUM: 0,
+      HIGH: 0
+    };
+    tasks.forEach(t => {
+      if (t.status === "DONE") stats.completed++;
+      if (t.status === "IN_PROGRESS") stats.inProgress++;
+      if (t.status === "TODO") stats.todo++;
+      if (new Date(t.due_date) < now && t.status !== "DONE") stats.overdue++;
+      if (statusMap[t.status] !== undefined) statusMap[t.status]++;
+      if (typeMap[t.type] !== undefined) typeMap[t.type]++;
+      if (priorityMap[t.priority] !== undefined) priorityMap[t.priority]++;
+    });
+    const totalTasks = total;
+    const completedTasks = stats.completed;
+    const remainingTasks = totalTasks - completedTasks;
+    const days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+    const totalPoints = totalTasks || 10;
+    const remaining = remainingTasks;
+    const step = totalPoints / (days.length - 1);
+    const burndownData = days.map((day, i) => ({
+      day,
+      ideal: Math.max(totalPoints - i * step, 0),
+      actual: i === 0 ? totalPoints : i < days.length - 1 ? Math.max(remaining - (days.length - 2 - i) * step * 0.3, 0) : remaining
+    }));
+    return {
+      stats,
+      statusData: Object.entries(statusMap).map(([k, v]) => ({
+        name: k.replace("_", " "),
+        value: v
+      })),
+      typeData: Object.entries(typeMap).filter(([_, v]) => v > 0).map(([k, v]) => ({
+        name: k,
+        value: v
+      })),
+      priorityData: Object.entries(priorityMap).map(([k, v]) => ({
+        name: k,
+        value: v,
+        percentage: total > 0 ? Math.round(v / total * 100) : 0
+      })),
+      burndownData
+    };
+  }, [tasks]);
+  const completionRate = stats.total ? Math.round(stats.completed / stats.total * 100) : 0;
+  const metrics = [{
+    label: t('dashboard.completed'),
+    value: `${completionRate}%`,
+    color: "text-emerald-600 dark:text-emerald-400",
+    icon: CheckCircle,
+    bg: "bg-emerald-500/10"
+  }, {
+    label: t('projectDetail.inProgress'),
+    value: stats.inProgress,
+    color: "text-primary-600 dark:text-primary-400",
+    icon: Clock,
+    bg: "bg-primary-500/10"
+  }, {
+    label: t('dashboard.overdue'),
+    value: stats.overdue,
+    color: "text-red-600 dark:text-red-400",
+    icon: AlertTriangle,
+    bg: "bg-red-500/10"
+  }, {
+    label: t('projectDetail.teamMembers'),
+    value: project?.members?.length || 0,
+    color: "text-violet-600 dark:text-violet-400",
+    icon: Users,
+    bg: "bg-violet-500/10"
+  }];
+  return <div className="space-y-6">       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">         {metrics.map((m, i) => {
+        const Icon = m.icon;
+        return <div key={i} className="bg-white dark:bg-surface-900 rounded-2xl border border-surface-200 dark:border-surface-800 p-5">               <div className="flex items-center justify-between">                 <div>                   <p className="text-xs text-surface-500 dark:text-surface-400 mb-0.5">{m.label}</p>                   <p className={`text-xl font-bold tracking-tight ${m.color}`}>{m.value}</p>                 </div>                 <div className={`p-2.5 rounded-xl ${m.bg}`}>                   <Icon size={18} className={m.color} />                 </div>               </div>             </div>;
+      })}       </div>        <div className="bg-white dark:bg-surface-900 rounded-2xl border border-surface-200 dark:border-surface-800 p-6">         <h2 className="text-base font-semibold text-surface-900 dark:text-surface-100 mb-4">Burndown</h2>         <ResponsiveContainer width="100%" height={300}>           <LineChart data={burndownData}>             <CartesianGrid strokeDasharray="3 3" stroke="#e4e4e7" />             <XAxis dataKey="day" tick={{
+            fill: "#71717a",
+            fontSize: 12
+          }} axisLine={{
+            stroke: "#e4e4e7"
+          }} />             <YAxis tick={{
+            fill: "#71717a",
+            fontSize: 12
+          }} axisLine={{
+            stroke: "#e4e4e7"
+          }} />             <Tooltip />             <Legend />             <Line type="monotone" dataKey="ideal" stroke="#a1a1aa" strokeDasharray="5 5" strokeWidth={2} name="Ideal" />             <Line type="monotone" dataKey="actual" stroke="#6366f1" strokeWidth={2} name="Actual" dot={{
+            r: 4
+          }} activeDot={{
+            r: 6
+          }} />           </LineChart>         </ResponsiveContainer>       </div>        <div className="grid lg:grid-cols-2 gap-6">         <div className="bg-white dark:bg-surface-900 rounded-2xl border border-surface-200 dark:border-surface-800 p-6">           <h2 className="text-base font-semibold text-surface-900 dark:text-surface-100 mb-4">{t('common.status')}</h2>           <ResponsiveContainer width="100%" height={300}>             <BarChart data={statusData}>               <XAxis dataKey="name" tick={{
+              fill: "#71717a",
+              fontSize: 12
+            }} axisLine={{
+              stroke: "#e4e4e7"
+            }} />               <YAxis tick={{
+              fill: "#71717a",
+              fontSize: 12
+            }} axisLine={{
+              stroke: "#e4e4e7"
+            }} />               <Bar dataKey="value" fill="#6366f1" radius={[6, 6, 0, 0]} />             </BarChart>           </ResponsiveContainer>         </div>          <div className="bg-white dark:bg-surface-900 rounded-2xl border border-surface-200 dark:border-surface-800 p-6">           <h2 className="text-base font-semibold text-surface-900 dark:text-surface-100 mb-4">{t('createTask.type')}</h2>           <ResponsiveContainer width="100%" height={300}>             <PieChart>               <Pie data={typeData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={100} label={({
+              name,
+              value
+            }) => `${name}: ${value}`}>                 {typeData.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}               </Pie>             </PieChart>           </ResponsiveContainer>         </div>       </div>        <div className="bg-white dark:bg-surface-900 rounded-2xl border border-surface-200 dark:border-surface-800 p-6">         <h2 className="text-base font-semibold text-surface-900 dark:text-surface-100 mb-4">{t('common.priority')}</h2>         <div className="space-y-4">           {priorityData.map(p => {
+          const barColors = {
+            LOW: "bg-primary-500",
+            MEDIUM: "bg-amber-500",
+            HIGH: "bg-red-500"
+          };
+          const textColors = {
+            LOW: "text-primary-600 dark:text-primary-400",
+            MEDIUM: "text-amber-600 dark:text-amber-400",
+            HIGH: "text-red-600 dark:text-red-400"
+          };
+          return <div key={p.name} className="space-y-2">                 <div className="flex justify-between items-center">                   <div className="flex items-center gap-2">                     <ArrowRight size={14} className={`${textColors[p.name]}`} />                     <span className="text-sm font-medium text-surface-900 dark:text-surface-100 capitalize">{p.name.toLowerCase()}</span>                   </div>                   <div className="flex items-center gap-2">                     <span className="text-sm text-surface-500 dark:text-surface-400">{p.value} {t('projectDetail.tasks').toLowerCase()}</span>                     <span className="px-2 py-0.5 text-xs font-medium rounded-full bg-surface-100 dark:bg-surface-800 text-surface-600 dark:text-surface-400">{p.percentage}%</span>                   </div>                 </div>                 <div className="w-full h-2 bg-surface-100 dark:bg-surface-800 rounded-full overflow-hidden">                   <div className={`h-full rounded-full ${barColors[p.name]}`} style={{
+                width: `${p.percentage}%`
+              }} />                 </div>               </div>;
+        })}         </div>       </div>     </div>;
+};
+export default ProjectAnalytics;

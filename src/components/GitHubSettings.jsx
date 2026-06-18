@@ -1,1 +1,97 @@
-import { useState } from "react" import { useDispatch, useSelector } from "react-redux" import { GitBranch, GitCommit, GitPullRequest, Link, Unlink } from "lucide-react" import { useTranslation } from "../i18n" import toast from "react-hot-toast" import { updateGithub } from "../features/workspaceSlice"  const TABS = ["commits", "pullRequests", "branches"]  const statusStyles = {   open: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400",   closed: "bg-red-500/10 text-red-600 dark:text-red-400",   merged: "bg-violet-500/10 text-violet-600 dark:text-violet-400", }  const tabIcons = {   commits: GitCommit,   pullRequests: GitPullRequest,   branches: GitBranch, }  export default function GitHubSettings({ project }) {   const { t } = useTranslation()   const dispatch = useDispatch()   const user = useSelector((state) => state.auth.user)   const [repoUrl, setRepoUrl] = useState("")   const [activeTab, setActiveTab] = useState("commits")    const github = project.github || {}   const connected = github.connected    const handleConnect = (e) => {     e.preventDefault()     if (!repoUrl.trim()) {       toast.error(t("github.repoUrl") + " is required")       return     }     dispatch(       updateGithub({         projectId: project.id,         github: {           repo: repoUrl,           connected: true,           commits: [             { id: "1", message: "Initial commit", author: user?.name || "Unknown", date: new Date().toISOString(), branch: "main" },             { id: "2", message: "Add project structure", author: user?.name || "Unknown", date: new Date().toISOString(), branch: "main" },             { id: "3", message: "Fix bugs", author: user?.name || "Unknown", date: new Date().toISOString(), branch: "develop" },           ],           prs: [             { id: "1", title: "Feature: Add user auth", url: "", status: "open", author: user?.name || "Unknown" },             { id: "2", title: "Fix: Login issue", url: "", status: "merged", author: user?.name || "Unknown" },           ],           branches: [             { name: "main" },             { name: "develop" },             { name: "feature/auth" },           ],         },       })     )     toast.success(t("github.connect"))   }    const handleDisconnect = () => {     dispatch(       updateGithub({         projectId: project.id,         github: { connected: false },       })     )     toast.success(t("github.disconnect"))   }    return (     <div className="bg-white dark:bg-surface-900 rounded-2xl border border-surface-200 dark:border-surface-800 p-6">       <div className="flex items-center gap-3 mb-6">         <div className="p-2 rounded-xl bg-primary-500/10">           <GitBranch size={18} className="text-primary-500" />         </div>         <div>           <h2 className="text-lg font-semibold text-surface-900 dark:text-surface-100">{t("github.title")}</h2>           {connected && (             <p className="text-xs text-surface-400 dark:text-surface-500 mt-0.5">               {t("github.connectedTo")}{" "}               <span className="text-primary-500 font-medium">{github.repo}</span>             </p>           )}         </div>       </div>        {connected ? (         <div className="space-y-5">           <div className="flex gap-1 p-1 rounded-xl bg-surface-100 dark:bg-surface-800 w-fit">             {TABS.map((tab) => {               const Icon = tabIcons[tab]               return (                 <button                   key={tab}                   onClick={() => setActiveTab(tab)}                   className={`flex items-center gap-1.5 px-3.5 py-2 text-sm font-medium rounded-lg transition-all ${                     activeTab === tab                       ? "bg-white dark:bg-surface-700 text-surface-900 dark:text-surface-100 shadow-sm"                       : "text-surface-500 dark:text-surface-400 hover:text-surface-700 dark:hover:text-surface-300"                   }`}                 >                   <Icon size={14} />                   {t(`github.${tab}`)}                 </button>               )             })}           </div>            <div className="space-y-2 min-h-[200px]">             {activeTab === "commits" &&               (github.commits?.length > 0 ? (                 github.commits.map((commit) => (                   <div key={commit.id} className="flex items-start gap-3 p-3 rounded-xl bg-surface-50 dark:bg-surface-850">                     <GitCommit size={16} className="text-primary-500 mt-0.5 shrink-0" />                     <div className="min-w-0 flex-1">                       <p className="text-sm font-medium text-surface-900 dark:text-surface-100 truncate">{commit.message}</p>                       <div className="flex flex-wrap items-center gap-x-3 gap-y-0.5 mt-1 text-xs text-surface-400 dark:text-surface-500">                         <span>{commit.author}</span>                         <span>{new Date(commit.date).toLocaleDateString()}</span>                         <span className="px-1.5 py-0.5 rounded text-[11px] font-medium bg-surface-200 dark:bg-surface-700 text-surface-500 dark:text-surface-400">                           {commit.branch}                         </span>                       </div>                     </div>                   </div>                 ))               ) : (                 <p className="text-sm text-surface-400 dark:text-surface-500 text-center py-10">{t("github.noCommits")}</p>               ))}              {activeTab === "pullRequests" &&               (github.prs?.length > 0 ? (                 github.prs.map((pr) => (                   <div key={pr.id} className="flex items-start gap-3 p-3 rounded-xl bg-surface-50 dark:bg-surface-850">                     <GitPullRequest size={16} className="text-primary-500 mt-0.5 shrink-0" />                     <div className="min-w-0 flex-1">                       <div className="flex items-center gap-2">                         <p className="text-sm font-medium text-surface-900 dark:text-surface-100 truncate">{pr.title}</p>                         <span className={`shrink-0 px-1.5 py-0.5 text-[11px] font-medium rounded-full capitalize ${statusStyles[pr.status] || ""}`}>                           {pr.status}                         </span>                       </div>                       <p className="text-xs text-surface-400 dark:text-surface-500 mt-0.5">{pr.author}</p>                     </div>                   </div>                 ))               ) : (                 <p className="text-sm text-surface-400 dark:text-surface-500 text-center py-10">{t("github.noPRs")}</p>               ))}              {activeTab === "branches" &&               (github.branches?.length > 0 ? (                 github.branches.map((branch, i) => (                   <div key={branch.name + i} className="flex items-center gap-3 p-3 rounded-xl bg-surface-50 dark:bg-surface-850">                     <GitBranch size={16} className="text-primary-500 shrink-0" />                     <span className="text-sm font-medium text-surface-900 dark:text-surface-100">{branch.name}</span>                   </div>                 ))               ) : (                 <p className="text-sm text-surface-400 dark:text-surface-500 text-center py-10">{t("github.noBranches")}</p>               ))}           </div>            <div className="pt-4 border-t border-surface-100 dark:border-surface-800">             <button               onClick={handleDisconnect}               className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-xl text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-500/10 hover:bg-red-100 dark:hover:bg-red-500/20 transition-all"             >               <Unlink size={14} />               {t("github.disconnect")}             </button>           </div>         </div>       ) : (         <form onSubmit={handleConnect} className="space-y-4">           <div>             <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1.5">               {t("github.repoUrl")}             </label>             <input               type="url"               value={repoUrl}               onChange={(e) => setRepoUrl(e.target.value)}               placeholder="https://github.com/user/repo"               className="w-full px-3.5 py-2.5 rounded-xl bg-surface-50 dark:bg-surface-850 border border-surface-200 dark:border-surface-700 text-surface-900 dark:text-surface-100 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/30 transition-all"             />           </div>           <button             type="submit"             className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-medium rounded-xl text-white bg-gradient-to-br from-primary-600 to-primary-700 hover:from-primary-500 hover:to-primary-600 shadow-lg shadow-primary-500/20 transition-all"           >             <Link size={16} />             {t("github.connect")}           </button>         </form>       )}     </div>   ) }
+import { useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { GitBranch, GitCommit, GitPullRequest, Link, Unlink } from "lucide-react";
+import { useTranslation } from "../i18n";
+import toast from "react-hot-toast";
+import { updateGithub } from "../features/workspaceSlice";
+const TABS = ["commits", "pullRequests", "branches"];
+const statusStyles = {
+  open: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400",
+  closed: "bg-red-500/10 text-red-600 dark:text-red-400",
+  merged: "bg-violet-500/10 text-violet-600 dark:text-violet-400"
+};
+const tabIcons = {
+  commits: GitCommit,
+  pullRequests: GitPullRequest,
+  branches: GitBranch
+};
+export default function GitHubSettings({
+  project
+}) {
+  const {
+    t
+  } = useTranslation();
+  const dispatch = useDispatch();
+  const user = useSelector(state => state.auth.user);
+  const [repoUrl, setRepoUrl] = useState("");
+  const [activeTab, setActiveTab] = useState("commits");
+  const github = project.github || {};
+  const connected = github.connected;
+  const handleConnect = e => {
+    e.preventDefault();
+    if (!repoUrl.trim()) {
+      toast.error(t("github.repoUrl") + " is required");
+      return;
+    }
+    dispatch(updateGithub({
+      projectId: project.id,
+      github: {
+        repo: repoUrl,
+        connected: true,
+        commits: [{
+          id: "1",
+          message: "Initial commit",
+          author: user?.name || "Unknown",
+          date: new Date().toISOString(),
+          branch: "main"
+        }, {
+          id: "2",
+          message: "Add project structure",
+          author: user?.name || "Unknown",
+          date: new Date().toISOString(),
+          branch: "main"
+        }, {
+          id: "3",
+          message: "Fix bugs",
+          author: user?.name || "Unknown",
+          date: new Date().toISOString(),
+          branch: "develop"
+        }],
+        prs: [{
+          id: "1",
+          title: "Feature: Add user auth",
+          url: "",
+          status: "open",
+          author: user?.name || "Unknown"
+        }, {
+          id: "2",
+          title: "Fix: Login issue",
+          url: "",
+          status: "merged",
+          author: user?.name || "Unknown"
+        }],
+        branches: [{
+          name: "main"
+        }, {
+          name: "develop"
+        }, {
+          name: "feature/auth"
+        }]
+      }
+    }));
+    toast.success(t("github.connect"));
+  };
+  const handleDisconnect = () => {
+    dispatch(updateGithub({
+      projectId: project.id,
+      github: {
+        connected: false
+      }
+    }));
+    toast.success(t("github.disconnect"));
+  };
+  return <div className="bg-white dark:bg-surface-900 rounded-2xl border border-surface-200 dark:border-surface-800 p-6">       <div className="flex items-center gap-3 mb-6">         <div className="p-2 rounded-xl bg-primary-500/10">           <GitBranch size={18} className="text-primary-500" />         </div>         <div>           <h2 className="text-lg font-semibold text-surface-900 dark:text-surface-100">{t("github.title")}</h2>           {connected && <p className="text-xs text-surface-400 dark:text-surface-500 mt-0.5">               {t("github.connectedTo")}{" "}               <span className="text-primary-500 font-medium">{github.repo}</span>             </p>}         </div>       </div>        {connected ? <div className="space-y-5">           <div className="flex gap-1 p-1 rounded-xl bg-surface-100 dark:bg-surface-800 w-fit">             {TABS.map(tab => {
+          const Icon = tabIcons[tab];
+          return <button key={tab} onClick={() => setActiveTab(tab)} className={`flex items-center gap-1.5 px-3.5 py-2 text-sm font-medium rounded-lg transition-all ${activeTab === tab ? "bg-white dark:bg-surface-700 text-surface-900 dark:text-surface-100 shadow-sm" : "text-surface-500 dark:text-surface-400 hover:text-surface-700 dark:hover:text-surface-300"}`}>                   <Icon size={14} />                   {t(`github.${tab}`)}                 </button>;
+        })}           </div>            <div className="space-y-2 min-h-[200px]">             {activeTab === "commits" && (github.commits?.length > 0 ? github.commits.map(commit => <div key={commit.id} className="flex items-start gap-3 p-3 rounded-xl bg-surface-50 dark:bg-surface-850">                     <GitCommit size={16} className="text-primary-500 mt-0.5 shrink-0" />                     <div className="min-w-0 flex-1">                       <p className="text-sm font-medium text-surface-900 dark:text-surface-100 truncate">{commit.message}</p>                       <div className="flex flex-wrap items-center gap-x-3 gap-y-0.5 mt-1 text-xs text-surface-400 dark:text-surface-500">                         <span>{commit.author}</span>                         <span>{new Date(commit.date).toLocaleDateString()}</span>                         <span className="px-1.5 py-0.5 rounded text-[11px] font-medium bg-surface-200 dark:bg-surface-700 text-surface-500 dark:text-surface-400">                           {commit.branch}                         </span>                       </div>                     </div>                   </div>) : <p className="text-sm text-surface-400 dark:text-surface-500 text-center py-10">{t("github.noCommits")}</p>)}              {activeTab === "pullRequests" && (github.prs?.length > 0 ? github.prs.map(pr => <div key={pr.id} className="flex items-start gap-3 p-3 rounded-xl bg-surface-50 dark:bg-surface-850">                     <GitPullRequest size={16} className="text-primary-500 mt-0.5 shrink-0" />                     <div className="min-w-0 flex-1">                       <div className="flex items-center gap-2">                         <p className="text-sm font-medium text-surface-900 dark:text-surface-100 truncate">{pr.title}</p>                         <span className={`shrink-0 px-1.5 py-0.5 text-[11px] font-medium rounded-full capitalize ${statusStyles[pr.status] || ""}`}>                           {pr.status}                         </span>                       </div>                       <p className="text-xs text-surface-400 dark:text-surface-500 mt-0.5">{pr.author}</p>                     </div>                   </div>) : <p className="text-sm text-surface-400 dark:text-surface-500 text-center py-10">{t("github.noPRs")}</p>)}              {activeTab === "branches" && (github.branches?.length > 0 ? github.branches.map((branch, i) => <div key={branch.name + i} className="flex items-center gap-3 p-3 rounded-xl bg-surface-50 dark:bg-surface-850">                     <GitBranch size={16} className="text-primary-500 shrink-0" />                     <span className="text-sm font-medium text-surface-900 dark:text-surface-100">{branch.name}</span>                   </div>) : <p className="text-sm text-surface-400 dark:text-surface-500 text-center py-10">{t("github.noBranches")}</p>)}           </div>            <div className="pt-4 border-t border-surface-100 dark:border-surface-800">             <button onClick={handleDisconnect} className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-xl text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-500/10 hover:bg-red-100 dark:hover:bg-red-500/20 transition-all">               <Unlink size={14} />               {t("github.disconnect")}             </button>           </div>         </div> : <form onSubmit={handleConnect} className="space-y-4">           <div>             <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1.5">               {t("github.repoUrl")}             </label>             <input type="url" value={repoUrl} onChange={e => setRepoUrl(e.target.value)} placeholder="https://github.com/user/repo" className="w-full px-3.5 py-2.5 rounded-xl bg-surface-50 dark:bg-surface-850 border border-surface-200 dark:border-surface-700 text-surface-900 dark:text-surface-100 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/30 transition-all" />           </div>           <button type="submit" className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-medium rounded-xl text-white bg-gradient-to-br from-primary-600 to-primary-700 hover:from-primary-500 hover:to-primary-600 shadow-lg shadow-primary-500/20 transition-all">             <Link size={16} />             {t("github.connect")}           </button>         </form>}     </div>;
+}

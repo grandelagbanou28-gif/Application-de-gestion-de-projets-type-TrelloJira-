@@ -1,1 +1,84 @@
-import { useState } from "react" import { X, Bug, Star, Lightbulb } from "lucide-react" import { useDispatch } from "react-redux" import { useTranslation } from "../i18n" import toast from "react-hot-toast" import { addTask } from "../features/workspaceSlice"  const typeIcons = { TASK: Star, BUG: Bug, FEATURE: Lightbulb, IMPROVEMENT: Star, OTHER: Star }  const CreateTaskDialog = ({ showCreateTask, setShowCreateTask, projectId }) => {   const { t } = useTranslation()   const dispatch = useDispatch()   const [isSubmitting, setIsSubmitting] = useState(false)   const [formData, setFormData] = useState({ title: "", description: "", type: "TASK", priority: "MEDIUM", assigneeId: "", dueDate: "" })    const handleSubmit = (e) => {     e.preventDefault()     if (!formData.title.trim() || !projectId) return     dispatch(addTask({       id: "task_" + Date.now(),       projectId,       title: formData.title.trim(),       description: formData.description.trim(),       type: formData.type,       priority: formData.priority,       status: "TODO",       assignee: formData.assigneeId ? { id: formData.assigneeId, name: formData.assigneeId } : null,       dueDate: formData.dueDate || null,       createdAt: new Date().toISOString(),     }))     toast.success(t('common.save'))     setShowCreateTask(false)     setFormData({ title: "", description: "", type: "TASK", priority: "MEDIUM", assigneeId: "", dueDate: "" })   }    if (!showCreateTask) return null    return (     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 dark:bg-black/60 backdrop-blur-sm">       <div className="bg-white dark:bg-surface-900 rounded-2xl border border-surface-200 dark:border-surface-800 shadow-2xl w-full max-w-lg">         <div className="flex items-center justify-between px-6 py-4 border-b border-surface-200 dark:border-surface-800">           <h2 className="text-lg font-semibold text-surface-900 dark:text-surface-100">{t('createTask.title')}</h2>           <button onClick={() => setShowCreateTask(false)} className="p-1.5 rounded-lg text-surface-400 hover:text-surface-600 dark:hover:text-surface-200 hover:bg-surface-100 dark:hover:bg-surface-800 transition-colors"><X size={18} /></button>         </div>         <form onSubmit={handleSubmit} className="p-6 space-y-5">           <div>             <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1.5">{t('createTask.name')}</label>             <input type="text" value={formData.title} onChange={(e) => setFormData({ ...formData, title: e.target.value })} placeholder={t('createTask.namePlaceholder')} className="w-full px-3.5 py-2.5 rounded-xl bg-surface-50 dark:bg-surface-850 border border-surface-200 dark:border-surface-700 text-surface-900 dark:text-surface-100 text-sm placeholder-surface-400 focus:outline-none focus:ring-2 focus:ring-primary-500/30 transition-all" required autoFocus />           </div>           <div>             <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1.5">{t('createTask.description')}</label>             <textarea value={formData.description} onChange={(e) => setFormData({ ...formData, description: e.target.value })} placeholder={t('createTask.descPlaceholder')} rows={3} className="w-full px-3.5 py-2.5 rounded-xl bg-surface-50 dark:bg-surface-850 border border-surface-200 dark:border-surface-700 text-surface-900 dark:text-surface-100 text-sm placeholder-surface-400 focus:outline-none focus:ring-2 focus:ring-primary-500/30 transition-all resize-none" />           </div>           <div className="grid grid-cols-2 gap-4">             <div>               <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1.5">{t('createTask.type')}</label>               <div className="flex gap-2">                 {["TASK", "BUG", "FEATURE"].map((type) => {                   const TypeIcon = typeIcons[type]                   return (                     <button key={type} type="button" onClick={() => setFormData({ ...formData, type })}                       className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium transition-all ${                         formData.type === type                           ? "bg-primary-100 dark:bg-primary-500/20 text-primary-700 dark:text-primary-300 border border-primary-300 dark:border-primary-700"                           : "bg-surface-100 dark:bg-surface-800 text-surface-500 dark:text-surface-400 border border-transparent hover:bg-surface-200 dark:hover:bg-surface-700"                       }`}>                       <TypeIcon size={12} /> {type}                     </button>                   )                 })}               </div>             </div>             <div>               <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1.5">{t('createTask.priority')}</label>               <select value={formData.priority} onChange={(e) => setFormData({ ...formData, priority: e.target.value })}                 className="w-full px-3 py-2.5 rounded-xl bg-surface-50 dark:bg-surface-850 border border-surface-200 dark:border-surface-700 text-surface-900 dark:text-surface-100 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/30 transition-all">                 {["LOW", "MEDIUM", "HIGH", "CRITICAL"].map((p) => (<option key={p} value={p}>{p}</option>))}               </select>             </div>           </div>           <div className="grid grid-cols-2 gap-4">             <div>               <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1.5">{t('createTask.assignee')}</label>               <input type="text" value={formData.assigneeId} onChange={(e) => setFormData({ ...formData, assigneeId: e.target.value })} placeholder="Assignee name" className="w-full px-3.5 py-2.5 rounded-xl bg-surface-50 dark:bg-surface-850 border border-surface-200 dark:border-surface-700 text-surface-900 dark:text-surface-100 text-sm placeholder-surface-400 focus:outline-none focus:ring-2 focus:ring-primary-500/30 transition-all" />             </div>             <div>               <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1.5">{t('createTask.dueDate')}</label>               <input type="date" value={formData.dueDate} onChange={(e) => setFormData({ ...formData, dueDate: e.target.value })}                 className="w-full px-3.5 py-2.5 rounded-xl bg-surface-50 dark:bg-surface-850 border border-surface-200 dark:border-surface-700 text-surface-900 dark:text-surface-100 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/30 transition-all" />             </div>           </div>           <div className="flex justify-end gap-3 pt-2 border-t border-surface-100 dark:border-surface-800">             <button type="button" onClick={() => setShowCreateTask(false)} className="px-4 py-2.5 text-sm font-medium rounded-xl text-surface-600 dark:text-surface-400 hover:bg-surface-100 dark:hover:bg-surface-800 transition-colors">{t('common.cancel')}</button>             <button type="submit" disabled={isSubmitting} className="px-5 py-2.5 text-sm font-medium rounded-xl text-white bg-gradient-to-br from-primary-600 to-primary-700 hover:from-primary-500 hover:to-primary-600 shadow-lg shadow-primary-500/20 disabled:opacity-50 transition-all">{isSubmitting ? t('common.creating') : t('common.create')}</button>           </div>         </form>       </div>     </div>   ) }  export default CreateTaskDialog
+import { useState } from "react";
+import { X, Bug, Star, Lightbulb } from "lucide-react";
+import { useDispatch } from "react-redux";
+import { useTranslation } from "../i18n";
+import toast from "react-hot-toast";
+import { addTask } from "../features/workspaceSlice";
+const typeIcons = {
+  TASK: Star,
+  BUG: Bug,
+  FEATURE: Lightbulb,
+  IMPROVEMENT: Star,
+  OTHER: Star
+};
+const CreateTaskDialog = ({
+  showCreateTask,
+  setShowCreateTask,
+  projectId
+}) => {
+  const {
+    t
+  } = useTranslation();
+  const dispatch = useDispatch();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [formData, setFormData] = useState({
+    title: "",
+    description: "",
+    type: "TASK",
+    priority: "MEDIUM",
+    assigneeId: "",
+    dueDate: ""
+  });
+  const handleSubmit = e => {
+    e.preventDefault();
+    if (!formData.title.trim() || !projectId) return dispatch(addTask({
+      id: "task_" + Date.now(),
+      projectId,
+      title: formData.title.trim(),
+      description: formData.description.trim(),
+      type: formData.type,
+      priority: formData.priority,
+      status: "TODO",
+      assignee: formData.assigneeId ? {
+        id: formData.assigneeId,
+        name: formData.assigneeId
+      } : null,
+      dueDate: formData.dueDate || null,
+      createdAt: new Date().toISOString()
+    }));
+    toast.success(t('common.save'));
+    setShowCreateTask(false);
+    setFormData({
+      title: "",
+      description: "",
+      type: "TASK",
+      priority: "MEDIUM",
+      assigneeId: "",
+      dueDate: ""
+    });
+  };
+  if (!showCreateTask) return null;
+  return <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 dark:bg-black/60 backdrop-blur-sm">       <div className="bg-white dark:bg-surface-900 rounded-2xl border border-surface-200 dark:border-surface-800 shadow-2xl w-full max-w-lg">         <div className="flex items-center justify-between px-6 py-4 border-b border-surface-200 dark:border-surface-800">           <h2 className="text-lg font-semibold text-surface-900 dark:text-surface-100">{t('createTask.title')}</h2>           <button onClick={() => setShowCreateTask(false)} className="p-1.5 rounded-lg text-surface-400 hover:text-surface-600 dark:hover:text-surface-200 hover:bg-surface-100 dark:hover:bg-surface-800 transition-colors"><X size={18} /></button>         </div>         <form onSubmit={handleSubmit} className="p-6 space-y-5">           <div>             <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1.5">{t('createTask.name')}</label>             <input type="text" value={formData.title} onChange={e => setFormData({
+            ...formData,
+            title: e.target.value
+          })} placeholder={t('createTask.namePlaceholder')} className="w-full px-3.5 py-2.5 rounded-xl bg-surface-50 dark:bg-surface-850 border border-surface-200 dark:border-surface-700 text-surface-900 dark:text-surface-100 text-sm placeholder-surface-400 focus:outline-none focus:ring-2 focus:ring-primary-500/30 transition-all" required autoFocus />           </div>           <div>             <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1.5">{t('createTask.description')}</label>             <textarea value={formData.description} onChange={e => setFormData({
+            ...formData,
+            description: e.target.value
+          })} placeholder={t('createTask.descPlaceholder')} rows={3} className="w-full px-3.5 py-2.5 rounded-xl bg-surface-50 dark:bg-surface-850 border border-surface-200 dark:border-surface-700 text-surface-900 dark:text-surface-100 text-sm placeholder-surface-400 focus:outline-none focus:ring-2 focus:ring-primary-500/30 transition-all resize-none" />           </div>           <div className="grid grid-cols-2 gap-4">             <div>               <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1.5">{t('createTask.type')}</label>               <div className="flex gap-2">                 {["TASK", "BUG", "FEATURE"].map(type => {
+                const TypeIcon = typeIcons[type];
+                return <button key={type} type="button" onClick={() => setFormData({
+                  ...formData,
+                  type
+                })} className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium transition-all ${formData.type === type ? "bg-primary-100 dark:bg-primary-500/20 text-primary-700 dark:text-primary-300 border border-primary-300 dark:border-primary-700" : "bg-surface-100 dark:bg-surface-800 text-surface-500 dark:text-surface-400 border border-transparent hover:bg-surface-200 dark:hover:bg-surface-700"}`}>                       <TypeIcon size={12} /> {type}                     </button>;
+              })}               </div>             </div>             <div>               <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1.5">{t('createTask.priority')}</label>               <select value={formData.priority} onChange={e => setFormData({
+              ...formData,
+              priority: e.target.value
+            })} className="w-full px-3 py-2.5 rounded-xl bg-surface-50 dark:bg-surface-850 border border-surface-200 dark:border-surface-700 text-surface-900 dark:text-surface-100 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/30 transition-all">                 {["LOW", "MEDIUM", "HIGH", "CRITICAL"].map(p => <option key={p} value={p}>{p}</option>)}               </select>             </div>           </div>           <div className="grid grid-cols-2 gap-4">             <div>               <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1.5">{t('createTask.assignee')}</label>               <input type="text" value={formData.assigneeId} onChange={e => setFormData({
+              ...formData,
+              assigneeId: e.target.value
+            })} placeholder="Assignee name" className="w-full px-3.5 py-2.5 rounded-xl bg-surface-50 dark:bg-surface-850 border border-surface-200 dark:border-surface-700 text-surface-900 dark:text-surface-100 text-sm placeholder-surface-400 focus:outline-none focus:ring-2 focus:ring-primary-500/30 transition-all" />             </div>             <div>               <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1.5">{t('createTask.dueDate')}</label>               <input type="date" value={formData.dueDate} onChange={e => setFormData({
+              ...formData,
+              dueDate: e.target.value
+            })} className="w-full px-3.5 py-2.5 rounded-xl bg-surface-50 dark:bg-surface-850 border border-surface-200 dark:border-surface-700 text-surface-900 dark:text-surface-100 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/30 transition-all" />             </div>           </div>           <div className="flex justify-end gap-3 pt-2 border-t border-surface-100 dark:border-surface-800">             <button type="button" onClick={() => setShowCreateTask(false)} className="px-4 py-2.5 text-sm font-medium rounded-xl text-surface-600 dark:text-surface-400 hover:bg-surface-100 dark:hover:bg-surface-800 transition-colors">{t('common.cancel')}</button>             <button type="submit" disabled={isSubmitting} className="px-5 py-2.5 text-sm font-medium rounded-xl text-white bg-gradient-to-br from-primary-600 to-primary-700 hover:from-primary-500 hover:to-primary-600 shadow-lg shadow-primary-500/20 disabled:opacity-50 transition-all">{isSubmitting ? t('common.creating') : t('common.create')}</button>           </div>         </form>       </div>     </div>;
+};
+export default CreateTaskDialog;

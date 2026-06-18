@@ -1,1 +1,67 @@
-import { useCallback } from "react" import { useSelector, useDispatch } from "react-redux" import { useNavigate } from "react-router-dom" import { format, formatDistanceToNow } from "date-fns" import {   Bell,   CheckCircle,   AlertTriangle,   XCircle,   CheckCheck,   Trash2,   X,   Dot, } from "lucide-react" import { useTranslation } from "../i18n" import { markRead, markAllRead, clearNotifications, deleteNotification } from "../features/notificationsSlice"  const typeConfig = {   info: { icon: Bell, color: "text-blue-500", bg: "bg-blue-500/10" },   success: { icon: CheckCircle, color: "text-emerald-500", bg: "bg-emerald-500/10" },   warning: { icon: AlertTriangle, color: "text-amber-500", bg: "bg-amber-500/10" },   error: { icon: XCircle, color: "text-red-500", bg: "bg-red-500/10" }, }  const NotificationsPage = () => {   const dispatch = useDispatch()   const navigate = useNavigate()   const { t } = useTranslation()   const notifications = useSelector((state) => state.notifications.items)    const sorted = [...notifications].sort(     (a, b) => new Date(b.timestamp) - new Date(a.timestamp)   )    const handleNotificationClick = useCallback(     (notification) => {       if (!notification.read) {         dispatch(markRead(notification.id))       }       if (notification.link) {         navigate(notification.link)       }     },     [dispatch, navigate]   )    const handleDelete = useCallback(     (e, id) => {       e.stopPropagation()       dispatch(deleteNotification(id))     },     [dispatch]   )    const formatTimestamp = (ts) => {     const date = new Date(ts)     const diff = Date.now() - date.getTime()     if (diff < 86400000) {       return formatDistanceToNow(date, { addSuffix: true })     }     return format(date, "MMM d")   }    return (     <div className="max-w-3xl mx-auto space-y-6">       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">         <div>           <h1 className="text-2xl font-bold tracking-tight text-surface-900 dark:text-white">             {t("notifications.title")}           </h1>           <p className="text-surface-500 dark:text-surface-400 text-sm mt-1">             {t("notifications.subtitle")}           </p>         </div>         <div className="flex items-center gap-2">           <button             onClick={() => dispatch(markAllRead())}             className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-xl text-white bg-gradient-to-br from-primary-600 to-primary-700 hover:from-primary-500 hover:to-primary-600 shadow-lg shadow-primary-500/25 transition-all active:scale-[0.97]"           >             <CheckCheck size={16} strokeWidth={2.5} />             {t("notifications.markAllRead")}           </button>           <button             onClick={() => dispatch(clearNotifications())}             className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-xl text-surface-600 dark:text-surface-300 bg-surface-100 dark:bg-surface-800 hover:bg-surface-200 dark:hover:bg-surface-700 transition-all active:scale-[0.97]"           >             <Trash2 size={16} strokeWidth={2.5} />             {t("notifications.clearAll")}           </button>         </div>       </div>        {sorted.length === 0 ? (         <div className="text-center py-20">           <div className="w-20 h-20 mx-auto mb-6 bg-surface-100 dark:bg-surface-800 rounded-2xl flex items-center justify-center">             <Bell size={40} className="text-surface-400 dark:text-surface-500" />           </div>           <h3 className="text-lg font-semibold text-surface-900 dark:text-surface-100 mb-1">             {t("notifications.noNotifications")}           </h3>           <p className="text-surface-500 dark:text-surface-400 text-sm">             {t("notifications.noNotificationsDesc")}           </p>         </div>       ) : (         <div className="space-y-2">           {sorted.map((notification) => {             const config = typeConfig[notification.type] || typeConfig.info             const Icon = config.icon             return (               <div                 key={notification.id}                 onClick={() => handleNotificationClick(notification)}                 className={`group relative flex items-start gap-4 p-4 rounded-xl border cursor-pointer transition-all ${                   notification.read                     ? "bg-white dark:bg-surface-900 border-surface-200 dark:border-surface-800 hover:bg-surface-50 dark:hover:bg-surface-850"                     : "bg-primary-500/5 dark:bg-primary-500/10 border-primary-200 dark:border-primary-800 hover:bg-primary-500/10 dark:hover:bg-primary-500/15"                 }`}               >                 {!notification.read && (                   <Dot                     size={24}                     className="absolute -left-1 top-4 text-primary-500"                     strokeWidth={3}                   />                 )}                 <div className={`shrink-0 p-2.5 rounded-xl ${config.bg}`}>                   <Icon size={18} className={config.color} strokeWidth={1.5} />                 </div>                 <div className="flex-1 min-w-0">                   <div className="flex items-start justify-between gap-2">                     <p                       className={`text-sm font-medium truncate ${                         notification.read                           ? "text-surface-700 dark:text-surface-200"                           : "text-surface-900 dark:text-white"                       }`}                     >                       {notification.title}                     </p>                     <span className="shrink-0 text-xs text-surface-400 dark:text-surface-500 whitespace-nowrap">                       {formatTimestamp(notification.timestamp)}                     </span>                   </div>                   <p className="text-sm text-surface-500 dark:text-surface-400 mt-0.5 line-clamp-2">                     {notification.message}                   </p>                 </div>                 <button                   onClick={(e) => handleDelete(e, notification.id)}                   className="shrink-0 p-1.5 rounded-lg text-surface-400 dark:text-surface-500 hover:text-red-500 hover:bg-red-500/10 opacity-0 group-hover:opacity-100 transition-all"                 >                   <X size={14} strokeWidth={2.5} />                 </button>               </div>             )           })}         </div>       )}     </div>   ) }  export default NotificationsPage
+import { useCallback } from "react";
+import { useSelector, useDispatch } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import { format, formatDistanceToNow } from "date-fns";
+import { Bell, CheckCircle, AlertTriangle, XCircle, CheckCheck, Trash2, X, Dot } from "lucide-react";
+import { useTranslation } from "../i18n";
+import { markRead, markAllRead, clearNotifications, deleteNotification } from "../features/notificationsSlice";
+const typeConfig = {
+  info: {
+    icon: Bell,
+    color: "text-blue-500",
+    bg: "bg-blue-500/10"
+  },
+  success: {
+    icon: CheckCircle,
+    color: "text-emerald-500",
+    bg: "bg-emerald-500/10"
+  },
+  warning: {
+    icon: AlertTriangle,
+    color: "text-amber-500",
+    bg: "bg-amber-500/10"
+  },
+  error: {
+    icon: XCircle,
+    color: "text-red-500",
+    bg: "bg-red-500/10"
+  }
+};
+const NotificationsPage = () => {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const {
+    t
+  } = useTranslation();
+  const notifications = useSelector(state => state.notifications.items);
+  const sorted = [...notifications].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+  const handleNotificationClick = useCallback(notification => {
+    if (!notification.read) {
+      dispatch(markRead(notification.id));
+    }
+    ;
+    if (notification.link) {
+      navigate(notification.link);
+    }
+  }, [dispatch, navigate]);
+  const handleDelete = useCallback((e, id) => {
+    e.stopPropagation();
+    dispatch(deleteNotification(id));
+  }, [dispatch]);
+  const formatTimestamp = ts => {
+    const date = new Date(ts);
+    const diff = Date.now() - date.getTime();
+    if (diff < 86400000) {
+      return formatDistanceToNow(date, {
+        addSuffix: true
+      });
+    }
+    return format(date, "MMM d");
+  };
+  return <div className="max-w-3xl mx-auto space-y-6">       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">         <div>           <h1 className="text-2xl font-bold tracking-tight text-surface-900 dark:text-white">             {t("notifications.title")}           </h1>           <p className="text-surface-500 dark:text-surface-400 text-sm mt-1">             {t("notifications.subtitle")}           </p>         </div>         <div className="flex items-center gap-2">           <button onClick={() => dispatch(markAllRead())} className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-xl text-white bg-gradient-to-br from-primary-600 to-primary-700 hover:from-primary-500 hover:to-primary-600 shadow-lg shadow-primary-500/25 transition-all active:scale-[0.97]">             <CheckCheck size={16} strokeWidth={2.5} />             {t("notifications.markAllRead")}           </button>           <button onClick={() => dispatch(clearNotifications())} className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-xl text-surface-600 dark:text-surface-300 bg-surface-100 dark:bg-surface-800 hover:bg-surface-200 dark:hover:bg-surface-700 transition-all active:scale-[0.97]">             <Trash2 size={16} strokeWidth={2.5} />             {t("notifications.clearAll")}           </button>         </div>       </div>        {sorted.length === 0 ? <div className="text-center py-20">           <div className="w-20 h-20 mx-auto mb-6 bg-surface-100 dark:bg-surface-800 rounded-2xl flex items-center justify-center">             <Bell size={40} className="text-surface-400 dark:text-surface-500" />           </div>           <h3 className="text-lg font-semibold text-surface-900 dark:text-surface-100 mb-1">             {t("notifications.noNotifications")}           </h3>           <p className="text-surface-500 dark:text-surface-400 text-sm">             {t("notifications.noNotificationsDesc")}           </p>         </div> : <div className="space-y-2">           {sorted.map(notification => {
+        const config = typeConfig[notification.type] || typeConfig.info;
+        const Icon = config.icon;
+        return <div key={notification.id} onClick={() => handleNotificationClick(notification)} className={`group relative flex items-start gap-4 p-4 rounded-xl border cursor-pointer transition-all ${notification.read ? "bg-white dark:bg-surface-900 border-surface-200 dark:border-surface-800 hover:bg-surface-50 dark:hover:bg-surface-850" : "bg-primary-500/5 dark:bg-primary-500/10 border-primary-200 dark:border-primary-800 hover:bg-primary-500/10 dark:hover:bg-primary-500/15"}`}>                 {!notification.read && <Dot size={24} className="absolute -left-1 top-4 text-primary-500" strokeWidth={3} />}                 <div className={`shrink-0 p-2.5 rounded-xl ${config.bg}`}>                   <Icon size={18} className={config.color} strokeWidth={1.5} />                 </div>                 <div className="flex-1 min-w-0">                   <div className="flex items-start justify-between gap-2">                     <p className={`text-sm font-medium truncate ${notification.read ? "text-surface-700 dark:text-surface-200" : "text-surface-900 dark:text-white"}`}>                       {notification.title}                     </p>                     <span className="shrink-0 text-xs text-surface-400 dark:text-surface-500 whitespace-nowrap">                       {formatTimestamp(notification.timestamp)}                     </span>                   </div>                   <p className="text-sm text-surface-500 dark:text-surface-400 mt-0.5 line-clamp-2">                     {notification.message}                   </p>                 </div>                 <button onClick={e => handleDelete(e, notification.id)} className="shrink-0 p-1.5 rounded-lg text-surface-400 dark:text-surface-500 hover:text-red-500 hover:bg-red-500/10 opacity-0 group-hover:opacity-100 transition-all">                   <X size={14} strokeWidth={2.5} />                 </button>               </div>;
+      })}         </div>}     </div>;
+};
+export default NotificationsPage;
