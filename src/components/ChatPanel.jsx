@@ -6,7 +6,7 @@ import { format, formatDistanceToNow } from "date-fns";
 import { nanoid } from "nanoid";
 import toast from "react-hot-toast";
 import { chatWithMemory } from "../services/aiService";
-const EMOJIS = ["­ƒÿÇ", "­ƒÿé", "ÔØñ´©Å", "­ƒöÑ", "­ƒæì", "­ƒÄë", "­ƒÜÇ", "Ô£¿", "­ƒÆ»", "­ƒÖî", "­ƒÿÄ", "­ƒñØ", "­ƒÆí", "Ô¡É", "­ƒÄ»", "Ô£à", "­ƒÆ¬", "­ƒåÆ"];
+const EMOJIS = ["😀", "😂", "❤️", "🔥", "👍", "🎉", "🚀", "✨", "💯", "🙌", "😎", "🤝", "💡", "⭐", "🎯", "✅", "💪", "🆒"];
 export default function ChatPanel({
   isOpen,
   onClose
