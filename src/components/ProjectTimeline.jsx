@@ -18,7 +18,7 @@ export default function ProjectTimeline({
     return [...tasks].filter(t => t.dueDate).sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate));
   }, [tasks]);
   if (sorted.length === 0) {
-    return <div className="text-center py-12">         <GanttChart size={40} className="mx-auto mb-3 text-surface-300 dark:text-surface-600" />         <p className="text-surface-500 dark:text-surface-400 text-sm">{t('common.noData') || "No tasks with due dates to display on timeline."}</p>       </div>;
+    return <div className="text-center py-12">         <GanttChart size={40} className="mx-auto mb-3 text-surface-300 dark:text-surface-600" />         <p className="text-surface-500 dark:text-surface-400 text-sm">{t('projectTimeline.noData')}</p>       </div>;
   }
   ;
   const dates = sorted.map(t => new Date(t.dueDate));
@@ -30,9 +30,9 @@ export default function ProjectTimeline({
   const days = Array.from({
     length: Math.min(dayCount, 60)
   }, (_, i) => addDays(minDate, i));
-  return <div className="space-y-4">       <h2 className="text-lg font-semibold text-surface-900 dark:text-surface-100 flex items-center gap-2">         <GanttChart size={18} /> Timeline       </h2>        <div className="overflow-x-auto bg-white dark:bg-surface-900 rounded-2xl border border-surface-200 dark:border-surface-800">         <div className="min-w-[600px]" style={{
+  return <div className="space-y-4">       <h2 className="text-lg font-semibold text-surface-900 dark:text-surface-100 flex items-center gap-2">         <GanttChart size={18} /> {t('projectTimeline.title')}       </h2>        <div className="overflow-x-auto bg-white dark:bg-surface-900 rounded-2xl border border-surface-200 dark:border-surface-800">         <div className="min-w-[600px]" style={{
         width: `${totalWidth + 280}px`
-      }}>           <div className="flex border-b border-surface-200 dark:border-surface-800">             <div className="w-[240px] shrink-0 p-3 text-xs font-medium text-surface-500 dark:text-surface-400 uppercase tracking-wider">               Task             </div>             <div className="flex flex-1">               {days.map((day, i) => <div key={i} className="shrink-0 p-2 text-center text-xs text-surface-400 dark:text-surface-500 border-l border-surface-100 dark:border-surface-800" style={{
+      }}>           <div className="flex border-b border-surface-200 dark:border-surface-800">             <div className="w-[240px] shrink-0 p-3 text-xs font-medium text-surface-500 dark:text-surface-400 uppercase tracking-wider">               {t('projectTimeline.task')}             </div>             <div className="flex flex-1">               {days.map((day, i) => <div key={i} className="shrink-0 p-2 text-center text-xs text-surface-400 dark:text-surface-500 border-l border-surface-100 dark:border-surface-800" style={{
               width: `${dayWidth}px`
             }}>                   {format(day, "d")}                   <div className="text-[10px] leading-none mt-0.5">{format(day, "EEE")}</div>                 </div>)}             </div>           </div>            {sorted.slice(0, 20).map(task => {
           const taskDate = new Date(task.dueDate);

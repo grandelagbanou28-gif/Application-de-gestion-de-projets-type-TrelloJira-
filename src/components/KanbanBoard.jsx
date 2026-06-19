@@ -9,15 +9,15 @@ import { Plus, GripVertical } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 const COLUMNS = [{
   key: "TODO",
-  label: "To Do",
+  labelKey: "kanban.todo",
   color: "bg-surface-100 dark:bg-surface-800 text-surface-600 dark:text-surface-300"
 }, {
   key: "IN_PROGRESS",
-  label: "In Progress",
+  labelKey: "kanban.inProgress",
   color: "bg-amber-100 text-amber-700 dark:bg-amber-500/20 dark:text-amber-300"
 }, {
   key: "DONE",
-  label: "Done",
+  labelKey: "kanban.done",
   color: "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-300"
 }];
 function SortableTask({
@@ -90,7 +90,7 @@ const KanbanBoard = ({
   };
   return <DndContext sensors={sensors} collisionDetection={closestCorners} onDragEnd={handleDragEnd}>       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">         {COLUMNS.map(column => {
         const columnTasks = getTasksByStatus(column.key);
-        return <div key={column.key} className="bg-surface-50 dark:bg-surface-850 rounded-2xl border border-surface-200 dark:border-surface-800 p-4">               <div className="flex items-center justify-between mb-4">                 <div className="flex items-center gap-2">                   <span className={`text-xs font-medium px-2.5 py-0.5 rounded-full ${column.color}`}>                     {column.label}                   </span>                   <span className="text-xs text-surface-400 dark:text-surface-500">{columnTasks.length}</span>                 </div>                 <button onClick={() => navigate(`/projectsDetail?id=${projectId}&tab=tasks&createTask=true`)} className="p-1 rounded-lg text-surface-400 hover:text-surface-600 dark:hover:text-surface-200 hover:bg-surface-100 dark:hover:bg-surface-800 transition-colors">                   <Plus size={14} />                 </button>               </div>               <SortableContext items={columnTasks.map(t => t.id)} strategy={verticalListSortingStrategy}>                 <div className="space-y-2 min-h-[100px]">                   {columnTasks.length === 0 ? <p className="text-xs text-surface-400 dark:text-surface-500 text-center py-6">{t('dashboard.noActivity')}</p> : columnTasks.map(task => <SortableTask key={task.id} task={task} />)}                 </div>               </SortableContext>             </div>;
+        return <div key={column.key} className="bg-surface-50 dark:bg-surface-850 rounded-2xl border border-surface-200 dark:border-surface-800 p-4">               <div className="flex items-center justify-between mb-4">                 <div className="flex items-center gap-2">                   <span className={`text-xs font-medium px-2.5 py-0.5 rounded-full ${column.color}`}>                     {t(column.labelKey)}                   </span>                   <span className="text-xs text-surface-400 dark:text-surface-500">{columnTasks.length}</span>                 </div>                 <button onClick={() => navigate(`/projectsDetail?id=${projectId}&tab=tasks&createTask=true`)} className="p-1 rounded-lg text-surface-400 hover:text-surface-600 dark:hover:text-surface-200 hover:bg-surface-100 dark:hover:bg-surface-800 transition-colors">                   <Plus size={14} />                 </button>               </div>               <SortableContext items={columnTasks.map(t => t.id)} strategy={verticalListSortingStrategy}>                 <div className="space-y-2 min-h-[100px]">                   {columnTasks.length === 0 ? <p className="text-xs text-surface-400 dark:text-surface-500 text-center py-6">{t('dashboard.noActivity')}</p> : columnTasks.map(task => <SortableTask key={task.id} task={task} />)}                 </div>               </SortableContext>             </div>;
       })}       </div>     </DndContext>;
 };
 export default KanbanBoard;

@@ -80,7 +80,7 @@ const TaskDetails = () => {
       id: nanoid(),
       user: {
         id: user?.id,
-        name: user?.name || "You"
+        name: user?.name || t('common.you')
       },
       content: newComment,
       createdAt: new Date().toISOString()

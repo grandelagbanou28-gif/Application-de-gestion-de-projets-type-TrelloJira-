@@ -164,7 +164,10 @@ const fr = {
     status: "Statut",
     priority: "Priorité",
     startDate: "Date début",
-    endDate: "Date fin"
+    endDate: "Date fin",
+    you: "Vous",
+    unknown: "Inconnu",
+    na: "N/A"
   },
   createProject: {
     title: "Créer un nouveau projet",
@@ -315,6 +318,101 @@ const fr = {
     noPRs: "Aucune pull request",
     noBranches: "Aucune branche",
     latestCommit: "Dernier commit"
+  },
+  chat: {
+    title: "Chat d'équipe",
+    online: "{count} en ligne",
+    noMessages: "Aucun message",
+    startConversation: "Commencez la conversation !",
+    general: "Général",
+    misc: "Divers",
+    messageCopied: "Message copié",
+    anonymous: "Anonyme",
+    errorMessage: "Désolé, une erreur technique est survenue. Veuillez réessayer."
+  },
+  error: {
+    title: "Une erreur est survenue",
+    description: "Une erreur inattendue s'est produite",
+    reload: "Recharger la page"
+  },
+  attachment: {
+    title: "Pièces jointes ({count})",
+    add: "Ajouter une pièce jointe",
+    close: "Fermer",
+    url: "URL de la pièce jointe...",
+    name: "Nom...",
+    attach: "Attacher",
+    deleteConfirm: "Supprimer cette pièce jointe ?",
+    unknown: "Inconnu"
+  },
+  kanban: {
+    todo: "À faire",
+    inProgress: "En cours",
+    done: "Terminé"
+  },
+  projectTasks: {
+    allTypes: "Tous les types",
+    typeTask: "Tâche",
+    typeBug: "Bug",
+    typeFeature: "Fonctionnalité",
+    typeImprovement: "Amélioration",
+    typeOther: "Autre",
+    allAssignees: "Tous les assignés",
+    title: "Titre",
+    delete: "Supprimer ({count})",
+    low: "Basse",
+    medium: "Moyenne",
+    high: "Haute"
+  },
+  sprintPlanning: {
+    title: "Sprints",
+    new: "Nouveau sprint",
+    empty: "Aucun sprint pour le moment. Créez votre premier sprint pour commencer.",
+    name: "Nom du sprint",
+    namePlaceholder: "ex. Sprint 1",
+    goal: "Objectif du sprint",
+    goalPlaceholder: "Que va accomplir ce sprint ?",
+    startDate: "Date de début",
+    endDate: "Date de fin",
+    done: "{done}/{total} terminé",
+    hideTasks: "Masquer les tâches",
+    showTasks: "Afficher les tâches ({count})",
+    unscheduled: "Tâches non planifiées",
+    backlog: "Backlog",
+    addToSprint: "Ajouter au sprint...",
+    allScheduled: "Toutes les tâches sont planifiées"
+  },
+  backlogPage: {
+    toggled: "Backlog basculé",
+    allProjects: "Tous les projets",
+    linkedEpic: "Epic lié",
+    none: "Aucun",
+    storiesCount: "{count} stories",
+    start: "Démarrer",
+    complete: "Terminer",
+    remove: "Retirer"
+  },
+  adminRoles: {
+    admin: "Admin",
+    adminDesc: "Accès complet à toutes les fonctionnalités",
+    manager: "Manager",
+    managerDesc: "Gérer les projets et les tâches",
+    member: "Membre",
+    memberDesc: "Accès de base aux projets"
+  },
+  profile: {
+    title: "Profil",
+    nickname: "Surnom / Nickname",
+    nicknamePlaceholder: "Votre surnom",
+    bio: "Bio",
+    bioPlaceholder: "Une courte description de vous",
+    avatarUrl: "URL de l'avatar",
+    avatarPlaceholder: "https://exemple.com/avatar.jpg"
+  },
+  projectTimeline: {
+    title: "Chronologie",
+    task: "Tâche",
+    noData: "Aucune tâche avec date d'échéance à afficher."
   }
 };
 export default fr;

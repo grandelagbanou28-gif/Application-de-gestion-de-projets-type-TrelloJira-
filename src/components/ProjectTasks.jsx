@@ -111,49 +111,49 @@ const ProjectTasks = ({
             label: t('common.status'),
             value: ""
           }, {
-            label: "To Do",
+            label: t('kanban.todo'),
             value: "TODO"
           }, {
             label: t('projectDetail.inProgress'),
             value: "IN_PROGRESS"
           }, {
-            label: "Done",
+            label: t('kanban.done'),
             value: "DONE"
           }],
           type: [{
-            label: "All Types",
+            label: t('projectTasks.allTypes'),
             value: ""
           }, {
-            label: "Task",
+            label: t('projectTasks.typeTask'),
             value: "TASK"
           }, {
-            label: "Bug",
+            label: t('projectTasks.typeBug'),
             value: "BUG"
           }, {
-            label: "Feature",
+            label: t('projectTasks.typeFeature'),
             value: "FEATURE"
           }, {
-            label: "Improvement",
+            label: t('projectTasks.typeImprovement'),
             value: "IMPROVEMENT"
           }, {
-            label: "Other",
+            label: t('projectTasks.typeOther'),
             value: "OTHER"
           }],
           priority: [{
             label: t('common.priority'),
             value: ""
           }, {
-            label: "Low",
+            label: t('projectTasks.low'),
             value: "LOW"
           }, {
-            label: "Medium",
+            label: t('projectTasks.medium'),
             value: "MEDIUM"
           }, {
-            label: "High",
+            label: t('projectTasks.high'),
             value: "HIGH"
           }],
           assignee: [{
-            label: "All Assignees",
+            label: t('projectTasks.allAssignees'),
             value: ""
           }, ...assigneeList.map(n => ({
             label: n,
@@ -166,7 +166,7 @@ const ProjectTasks = ({
           type: "",
           priority: "",
           assignee: ""
-        })} className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-sm font-medium text-surface-600 dark:text-surface-400 hover:bg-surface-100 dark:hover:bg-surface-800 transition-colors">               <RotateCcw size={14} /> {t('projects.allStatus')}             </button>}           {selectedTasks.length > 0 && <button onClick={handleDelete} className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-sm font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors">               <Trash2 size={14} /> Delete ({selectedTasks.length})             </button>}         </div>       </div>        {filteredTasks.length === 0 ? <div className="text-center py-12">           <div className="w-16 h-16 mx-auto mb-4 bg-surface-100 dark:bg-surface-800 rounded-2xl flex items-center justify-center">             <Square size={28} className="text-surface-400" />           </div>           <p className="text-surface-600 dark:text-surface-400 font-medium">{t('projectDetail.totalTasks')}</p>           <p className="text-sm text-surface-400 dark:text-surface-500 mt-1">{t('projects.adjustSearch')}</p>         </div> : <div className="overflow-hidden rounded-xl border border-surface-200 dark:border-surface-800">           <table className="w-full text-sm">             <thead>               <tr className="bg-surface-50 dark:bg-surface-850 border-b border-surface-200 dark:border-surface-800">                 <th className="w-10 px-3 py-3">                   <input type="checkbox" onChange={() => selectedTasks.length > 0 ? setSelectedTasks([]) : setSelectedTasks(tasks.map(t => t.id))} checked={selectedTasks.length === tasks.length && tasks.length > 0} className="size-3.5" />                 </th>                 <th className="text-left px-4 py-3 text-xs font-semibold text-surface-500 dark:text-surface-400 uppercase tracking-wider">Title</th>                 <th className="text-left px-4 py-3 text-xs font-semibold text-surface-500 dark:text-surface-400 uppercase tracking-wider hidden md:table-cell">Type</th>                 <th className="text-left px-4 py-3 text-xs font-semibold text-surface-500 dark:text-surface-400 uppercase tracking-wider hidden md:table-cell">Priority</th>                 <th className="text-left px-4 py-3 text-xs font-semibold text-surface-500 dark:text-surface-400 uppercase tracking-wider">Status</th>                 <th className="text-left px-4 py-3 text-xs font-semibold text-surface-500 dark:text-surface-400 uppercase tracking-wider hidden lg:table-cell">Assignee</th>                 <th className="text-left px-4 py-3 text-xs font-semibold text-surface-500 dark:text-surface-400 uppercase tracking-wider hidden lg:table-cell">Due Date</th>               </tr>             </thead>             <tbody className="divide-y divide-surface-100 dark:divide-surface-800">               {filteredTasks.map(task => {
+        })} className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-sm font-medium text-surface-600 dark:text-surface-400 hover:bg-surface-100 dark:hover:bg-surface-800 transition-colors">               <RotateCcw size={14} /> {t('projects.allStatus')}             </button>}           {selectedTasks.length > 0 && <button onClick={handleDelete} className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-sm font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors">               <Trash2 size={14} /> {t('projectTasks.delete', { count: selectedTasks.length })}             </button>}         </div>       </div>        {filteredTasks.length === 0 ? <div className="text-center py-12">           <div className="w-16 h-16 mx-auto mb-4 bg-surface-100 dark:bg-surface-800 rounded-2xl flex items-center justify-center">             <Square size={28} className="text-surface-400" />           </div>           <p className="text-surface-600 dark:text-surface-400 font-medium">{t('projectDetail.totalTasks')}</p>           <p className="text-sm text-surface-400 dark:text-surface-500 mt-1">{t('projects.adjustSearch')}</p>         </div> : <div className="overflow-hidden rounded-xl border border-surface-200 dark:border-surface-800">           <table className="w-full text-sm">             <thead>               <tr className="bg-surface-50 dark:bg-surface-850 border-b border-surface-200 dark:border-surface-800">                 <th className="w-10 px-3 py-3">                   <input type="checkbox" onChange={() => selectedTasks.length > 0 ? setSelectedTasks([]) : setSelectedTasks(tasks.map(t => t.id))} checked={selectedTasks.length === tasks.length && tasks.length > 0} className="size-3.5" />                 </th>                 <th className="text-left px-4 py-3 text-xs font-semibold text-surface-500 dark:text-surface-400 uppercase tracking-wider">{t('projectTasks.title')}</th>                 <th className="text-left px-4 py-3 text-xs font-semibold text-surface-500 dark:text-surface-400 uppercase tracking-wider hidden md:table-cell">Type</th>                 <th className="text-left px-4 py-3 text-xs font-semibold text-surface-500 dark:text-surface-400 uppercase tracking-wider hidden md:table-cell">Priority</th>                 <th className="text-left px-4 py-3 text-xs font-semibold text-surface-500 dark:text-surface-400 uppercase tracking-wider">Status</th>                 <th className="text-left px-4 py-3 text-xs font-semibold text-surface-500 dark:text-surface-400 uppercase tracking-wider hidden lg:table-cell">Assignee</th>                 <th className="text-left px-4 py-3 text-xs font-semibold text-surface-500 dark:text-surface-400 uppercase tracking-wider hidden lg:table-cell">Due Date</th>               </tr>             </thead>             <tbody className="divide-y divide-surface-100 dark:divide-surface-800">               {filteredTasks.map(task => {
             const TypeIcon = typeIcons[task.type]?.icon || Square;
             const iconColor = typeIcons[task.type]?.color || "text-surface-500";
             const iconBg = typeIcons[task.type]?.bg || "bg-surface-500/10";

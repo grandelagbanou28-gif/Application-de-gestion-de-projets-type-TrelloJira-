@@ -13,9 +13,9 @@ export default function Settings() {
   const [activeSection, setActiveSection] = useState("profile");
   const sections = [{
     id: "profile",
-    label: "Profile",
+    label: t('profile.title'),
     icon: UserCircle,
-    description: "Photo, nickname & personal info"
+    description: t('profile.bioPlaceholder')
   }, {
     id: "general",
     label: t('settings.general'),

@@ -1,5 +1,6 @@
 import { useSelector } from "react-redux";
 import { formatDistanceToNow } from "date-fns";
+import { useTranslation } from "../i18n";
 import { ListTodo, UserPlus, FolderKanban, Rocket, CheckCircle, Clock, Activity } from "lucide-react";
 const typeConfig = {
   task_created: {
@@ -42,11 +43,12 @@ export default function ActivityLog({
   activities: propActivities,
   maxItems
 }) {
+  const { t } = useTranslation();
   const currentWorkspace = useSelector(state => state.workspace.currentWorkspace);
   const activities = propActivities ?? currentWorkspace?.activities ?? [];
   const displayed = maxItems ? activities.slice(0, maxItems) : activities;
   if (!displayed.length) {
-    return <div className="flex flex-col items-center justify-center py-12 text-surface-500">         <Clock className="h-10 w-10 mb-3" />         <p className="text-sm font-medium">No recent activity</p>       </div>;
+    return <div className="flex flex-col items-center justify-center py-12 text-surface-500">         <Clock className="h-10 w-10 mb-3" />         <p className="text-sm font-medium">{t('dashboard.noActivity')}</p>       </div>;
   }
   return <div className="space-y-1">       {displayed.map(item => {
       const config = typeConfig[item.type] || typeConfig.task_created;

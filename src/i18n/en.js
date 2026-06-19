@@ -164,7 +164,10 @@ const en = {
     status: "Status",
     priority: "Priority",
     startDate: "Start Date",
-    endDate: "End Date"
+    endDate: "End Date",
+    you: "You",
+    unknown: "Unknown",
+    na: "N/A"
   },
   createProject: {
     title: "Create New Project",
@@ -315,6 +318,101 @@ const en = {
     noPRs: "No pull requests yet",
     noBranches: "No branches yet",
     latestCommit: "Latest commit"
+  },
+  chat: {
+    title: "Team Chat",
+    online: "{count} online",
+    noMessages: "No messages",
+    startConversation: "Start the conversation!",
+    general: "General",
+    misc: "Misc",
+    messageCopied: "Message copied",
+    anonymous: "Anonymous",
+    errorMessage: "Sorry, a technical error occurred. Please try again."
+  },
+  error: {
+    title: "Something went wrong",
+    description: "An unexpected error occurred",
+    reload: "Reload page"
+  },
+  attachment: {
+    title: "Attachments ({count})",
+    add: "Add Attachment",
+    close: "Close",
+    url: "Attachment URL...",
+    name: "Name...",
+    attach: "Attach",
+    deleteConfirm: "Delete this attachment?",
+    unknown: "Unknown"
+  },
+  kanban: {
+    todo: "To Do",
+    inProgress: "In Progress",
+    done: "Done"
+  },
+  projectTasks: {
+    allTypes: "All Types",
+    typeTask: "Task",
+    typeBug: "Bug",
+    typeFeature: "Feature",
+    typeImprovement: "Improvement",
+    typeOther: "Other",
+    allAssignees: "All Assignees",
+    title: "Title",
+    delete: "Delete ({count})",
+    low: "Low",
+    medium: "Medium",
+    high: "High"
+  },
+  sprintPlanning: {
+    title: "Sprints",
+    new: "New Sprint",
+    empty: "No sprints yet. Create your first sprint to start planning.",
+    name: "Sprint Name",
+    namePlaceholder: "e.g. Sprint 1",
+    goal: "Sprint Goal",
+    goalPlaceholder: "What will this sprint achieve?",
+    startDate: "Start Date",
+    endDate: "End Date",
+    done: "{done}/{total} done",
+    hideTasks: "Hide tasks",
+    showTasks: "Show tasks ({count})",
+    unscheduled: "Unscheduled Tasks",
+    backlog: "Backlog",
+    addToSprint: "Add to sprint...",
+    allScheduled: "All tasks are scheduled"
+  },
+  backlogPage: {
+    toggled: "Backlog toggled",
+    allProjects: "All Projects",
+    linkedEpic: "Linked Epic",
+    none: "None",
+    storiesCount: "{count} stories",
+    start: "Start",
+    complete: "Complete",
+    remove: "Remove"
+  },
+  adminRoles: {
+    admin: "Admin",
+    adminDesc: "Full access to all features",
+    manager: "Manager",
+    managerDesc: "Manage projects and tasks",
+    member: "Member",
+    memberDesc: "Basic access to projects"
+  },
+  profile: {
+    title: "Profile",
+    nickname: "Surnom / Nickname",
+    nicknamePlaceholder: "Your nickname",
+    bio: "Bio",
+    bioPlaceholder: "A short bio about yourself",
+    avatarUrl: "Avatar URL",
+    avatarPlaceholder: "https://example.com/avatar.jpg"
+  },
+  projectTimeline: {
+    title: "Timeline",
+    task: "Task",
+    noData: "No tasks with due dates to display on timeline."
   }
 };
 export default en;

@@ -1,10 +1,7 @@
 const GH_TOKEN_KEY = 'graden_gh_token';
-const _p1 = 'gho_nRs97JAa4TNNhXLCxSF';
-const _p2 = 'JuUmeMvR1s24GgMWW';
-const GH_TOKEN_DEFAULT = _p1 + _p2;
 const GH_MODELS_URL = 'https://models.inference.ai.azure.com/chat/completions';
 const GH_MODEL = 'gpt-4o-mini';
-export const getApiKey = () => localStorage.getItem(GH_TOKEN_KEY) || GH_TOKEN_DEFAULT;
+export const getApiKey = () => localStorage.getItem(GH_TOKEN_KEY);
 export const setApiKey = key => {
   localStorage.setItem(GH_TOKEN_KEY, key);
 };
