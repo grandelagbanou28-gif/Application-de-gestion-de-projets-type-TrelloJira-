@@ -6,7 +6,9 @@ const en = {
     allCaughtUp: "You're all caught up",
     signOut: "Sign Out",
     guest: "Guest",
-    notSignedIn: "Not signed in"
+    notSignedIn: "Not signed in",
+    teamChat: "Team Chat",
+    profileSettings: "Profile settings"
   },
   sidebar: {
     dashboard: "Dashboard",

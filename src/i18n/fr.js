@@ -6,7 +6,9 @@ const fr = {
     allCaughtUp: "Vous êtes à jour",
     signOut: "Déconnexion",
     guest: "Invité",
-    notSignedIn: "Non connecté"
+    notSignedIn: "Non connecté",
+    teamChat: "Chat d'équipe",
+    profileSettings: "Paramètres du profil"
   },
   sidebar: {
     dashboard: "Tableau de bord",
