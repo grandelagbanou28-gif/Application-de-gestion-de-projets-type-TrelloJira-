@@ -6,6 +6,7 @@ export const setApiKey = key => {
   localStorage.setItem(GH_TOKEN_KEY, key);
 };
 export const hasApiKey = () => !!getApiKey();
+export const removeApiKey = () => localStorage.removeItem(GH_TOKEN_KEY);
 const callGHModels = async (messages, systemInstruction) => {
   const token = getApiKey();
   if (!token) throw new Error('No token configured');

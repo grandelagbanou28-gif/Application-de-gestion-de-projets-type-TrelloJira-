@@ -139,7 +139,20 @@ const en = {
     noMembers: "No team members yet",
     noMembersDesc: "Invite members from the Team page",
     members: "members",
-    projects: "projects"
+    projects: "projects",
+    analysis: "Analysis",
+    analysisDesc: "Configure AI and analytics settings",
+    analysisApiKey: "GitHub API Key (for GitHub Models)",
+    analysisApiKeyDesc: "Enter your GitHub token to enable AI features (task generation, sprint analysis, user stories). Get yours at",
+    analysisApiKeyPlaceholder: "ghp_...",
+    analysisApiKeySave: "Save Key",
+    analysisApiKeySaved: "API key saved successfully",
+    analysisApiKeyRemove: "Remove Key",
+    analysisApiKeyRemoved: "API key removed",
+    analysisDarkMode: "Dark Mode",
+    analysisDarkModeDesc: "Toggle dark mode theme for the application",
+    analysisLanguage: "Language",
+    analysisLanguageDesc: "Choose your preferred language"
   },
   login: {
     welcome: "Welcome to SprintBoard",

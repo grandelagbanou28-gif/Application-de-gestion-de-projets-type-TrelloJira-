@@ -139,7 +139,20 @@ const fr = {
     noMembers: "Aucun membre",
     noMembersDesc: "Invitez des membres depuis la page Équipe",
     members: "membres",
-    projects: "projets"
+    projects: "projets",
+    analysis: "Analyses",
+    analysisDesc: "Configurer l'IA et les analyses",
+    analysisApiKey: "Clé API GitHub (pour GitHub Models)",
+    analysisApiKeyDesc: "Entrez votre token GitHub pour activer l'IA (génération de tâches, analyse sprint, user stories). Obtenez-le sur",
+    analysisApiKeyPlaceholder: "ghp_...",
+    analysisApiKeySave: "Enregistrer la clé",
+    analysisApiKeySaved: "Clé API enregistrée",
+    analysisApiKeyRemove: "Supprimer la clé",
+    analysisApiKeyRemoved: "Clé API supprimée",
+    analysisDarkMode: "Mode sombre",
+    analysisDarkModeDesc: "Activer le thème sombre pour l'application",
+    analysisLanguage: "Langue",
+    analysisLanguageDesc: "Choisissez votre langue préférée"
   },
   login: {
     welcome: "Bienvenue sur SprintBoard",
