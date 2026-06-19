@@ -277,7 +277,7 @@ const en = {
   },
   ai: {
     title: "Graden IA",
-    subtitle: "Leverage AI to boost your productivity ÔÇö Powered by Gemini",
+    subtitle: "Leverage AI to boost your productivity — Powered by Gemini",
     generateTasks: "Generate Tasks",
     sprintSummary: "Sprint Summary",
     productivity: "Productivity Analysis",
