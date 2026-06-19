@@ -4,7 +4,7 @@ import { setLanguage } from "../features/languageSlice";
 import { Check, Globe } from "lucide-react";
 const languages = [{
   code: "fr",
-  label: "Fran├ºais",
+  label: "Français",
   flag: <svg viewBox="0 0 3 2" className="w-5 h-4 rounded-sm shrink-0">         <rect width="3" height="2" fill="#ED2939" />         <rect width="2" height="2" fill="#fff" />         <rect width="1" height="2" fill="#002395" />       </svg>
 }, {
   code: "en",
