@@ -15,7 +15,7 @@ export default function Settings() {
     id: "profile",
     label: t('profile.title'),
     icon: UserCircle,
-    description: t('profile.bioPlaceholder')
+    description: t('profile.description')
   }, {
     id: "general",
     label: t('settings.general'),

@@ -398,10 +398,18 @@ const fr = {
     manager: "Manager",
     managerDesc: "Gérer les projets et les tâches",
     member: "Membre",
-    memberDesc: "Accès de base aux projets"
+    memberDesc: "Accès de base aux projets",
+    permFullAccess: "Accès complet",
+    permManageWorkspace: "Gérer l'espace",
+    permManageProjects: "Gérer les projets",
+    permManageTasks: "Gérer les tâches",
+    permViewAnalytics: "Voir les analyses",
+    permViewProjects: "Voir les projets",
+    permManageAssigned: "Gérer les tâches assignées"
   },
   profile: {
     title: "Profil",
+    description: "Photo, surnom & infos personnelles",
     nickname: "Surnom / Nickname",
     nicknamePlaceholder: "Votre surnom",
     bio: "Bio",

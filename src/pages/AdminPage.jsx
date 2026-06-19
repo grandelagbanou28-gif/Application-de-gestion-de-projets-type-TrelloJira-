@@ -44,15 +44,15 @@ const activityIcons = {
 const roleInfo = [{
   roleKey: "adminRoles.admin",
   descKey: "adminRoles.adminDesc",
-  permissions: ["adminRoles.adminDesc"]
+  permissions: ["adminRoles.permFullAccess", "adminRoles.permManageWorkspace", "adminRoles.permManageProjects"]
 }, {
   roleKey: "adminRoles.manager",
   descKey: "adminRoles.managerDesc",
-  permissions: ["adminRoles.managerDesc"]
+  permissions: ["adminRoles.permManageProjects", "adminRoles.permManageTasks", "adminRoles.permViewAnalytics"]
 }, {
   roleKey: "adminRoles.member",
   descKey: "adminRoles.memberDesc",
-  permissions: ["adminRoles.memberDesc"]
+  permissions: ["adminRoles.permViewProjects", "adminRoles.permManageAssigned"]
 }];
 const AdminPage = () => {
   const {
