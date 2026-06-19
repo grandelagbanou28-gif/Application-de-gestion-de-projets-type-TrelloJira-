@@ -4,7 +4,7 @@ import { useTranslation } from '../i18n';
 import { addTask, addUserStory } from '../features/workspaceSlice';
 import { nanoid } from 'nanoid';
 import toast from 'react-hot-toast';
-import { Bot, Sparkles, Send, Key, Eye, EyeOff, Mic, Square, StopCircle, BarChart3, ListTodo, BookOpen, AlertTriangle, CheckCircle, Clock, Users, TrendingUp, Zap, Lightbulb } from 'lucide-react';
+import { Bot, Sparkles, Send, Key, Eye, EyeOff, Mic, Square, StopCircle, BarChart3, ListTodo, BookOpen, AlertTriangle, CheckCircle, Clock, Users, User, TrendingUp, Zap, Lightbulb } from 'lucide-react';
 import { chatWithMemory, hasApiKey, getApiKey, setApiKey } from '../services/aiService';
 const QUICK_ACTIONS = [{
   id: 'tasks',
